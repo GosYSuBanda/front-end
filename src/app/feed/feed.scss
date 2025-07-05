@@ -1,0 +1,36 @@
+.feed-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0;
+  background: #f5f6fa;
+  min-height: 100vh;
+  gap: 32px;
+}
+
+.sidebar {
+  width: 220px;
+  margin-left: 0;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.create-post {
+  order: -1;
+}
+
+.feed-list {
+  order: 1;
+}
+
+.asesores {
+  width: 260px;
+  margin-right: 0;
+}

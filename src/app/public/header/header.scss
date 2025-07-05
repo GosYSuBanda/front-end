@@ -1,0 +1,24 @@
+.header-container {
+  width: 100%;
+  background: #F3FEFF;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.header-logo {
+  height: 36px;
+  width: auto;
+}

@@ -1,0 +1,52 @@
+<!-- Loading state -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p>Cargando comentarios...</p>
+</div>
+
+<!-- Error state -->
+<div *ngIf="error" class="error-container">
+  <p class="error-message">{{ error }}</p>
+  <button (click)="loadPost()" class="retry-button">Reintentar</button>
+</div>
+
+<!-- Comments content -->
+<div *ngIf="!loading && !error && post" class="comments-content">
+  <div class="comments-title">
+    Comentarios de: {{ post.title }}
+  </div>
+  
+
+  <!-- Comments list -->
+  <div class="comments-list">
+    <div *ngIf="!post.comments || post.comments.length === 0" class="no-comments">
+      <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+    </div>
+    
+    <ng-container *ngFor="let comment of post.comments || []">
+      <app-comment
+        [profileName]="getAuthorName(comment.userId)"
+        [commentText]="comment.comment"
+        [profileImage]="''">
+      </app-comment>
+    </ng-container>
+  </div>
+  
+  <!-- Add comment form -->
+  <div class="add-comment">
+    <h4>Agregar comentario</h4>
+    <div class="comment-form">
+      <textarea 
+        #commentInput
+        placeholder="Escribe tu comentario..."
+        rows="3"
+        class="comment-textarea">
+      </textarea>
+      <button 
+        (click)="addComment(commentInput.value); commentInput.value = ''"
+        class="submit-comment-btn">
+        Comentar
+      </button>
+    </div>
+  </div>
+</div>

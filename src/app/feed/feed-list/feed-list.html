@@ -1,0 +1,53 @@
+<!-- Loading state -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p>Cargando posts...</p>
+</div>
+
+<!-- Error state -->
+<div *ngIf="error" class="error-container">
+  <p class="error-message">{{ error }}</p>
+  <button (click)="loadPosts()" class="retry-button">Reintentar</button>
+</div>
+
+<!-- Posts list -->
+<div *ngIf="!loading && !error" class="posts-container">
+  <div *ngFor="let post of filteredPosts" class="post-item">
+    <!-- Invoice posts -->
+    <app-post-factura
+      *ngIf="post.postType === 'invoice'"
+      [postId]="post._id"
+      [profileName]="getAuthorName(post.authorId)"
+      [postText]="post.content"
+      [postImage]="post.imageUrls?.[0] || post.images[0] || ''"
+      [post]="post"
+      [inversionesProgreso]="60"
+      [comentarios]="post.comments.length"
+      [likes]="post.reactions.like"
+      [reactions]="post.reactions"
+      (reaction)="onReaction(post._id, $event)"
+      (comment)="onComment(post._id, $event)"
+    ></app-post-factura>
+
+    <!-- Experience posts (all non-invoice posts) -->
+    <app-post-experiencia
+      *ngIf="post.postType !== 'invoice'"
+      [postId]="post._id"
+      [profileName]="getAuthorName(post.authorId)"
+      [postText]="post.content"
+      [postImage]="post.imageUrls?.[0] || post.images[0] || ''"
+      [post]="post"
+      [comentarios]="post.comments.length"
+      [likes]="post.reactions.like"
+      [reactions]="post.reactions"
+      (reaction)="onReaction(post._id, $event)"
+      (comment)="onComment(post._id, $event)"
+    ></app-post-experiencia>
+
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="filteredPosts.length === 0" class="empty-state">
+    <p>No hay posts disponibles para este filtro</p>
+  </div>
+</div> 

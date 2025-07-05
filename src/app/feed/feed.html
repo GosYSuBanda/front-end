@@ -1,0 +1,9 @@
+
+<div class="feed-container">
+  <app-sidebar class="sidebar" (filterChanged)="onFilterChanged($event)"></app-sidebar>
+  <div class="main-content">
+    <app-create-post class="create-post"></app-create-post>
+    <app-feed-list class="feed-list" #feedList></app-feed-list>
+  </div>
+  <app-asesores class="asesores"></app-asesores>
+</div>

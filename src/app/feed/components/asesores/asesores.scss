@@ -1,0 +1,45 @@
+.asesores-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 32px 16px 24px 16px;
+  text-align: center;
+}
+
+.asesores-title {
+  font-size: 20px;
+  color: #888;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+.asesores-imgs {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.asesor-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
+.asesores-btn {
+  background: #fff;
+  color: #1976d2;
+  border: 2px solid #1976d2;
+  border-radius: 6px;
+  padding: 8px 32px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.asesores-btn:hover {
+  background: #1976d2;
+  color: #fff;
+}

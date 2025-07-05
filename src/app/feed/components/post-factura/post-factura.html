@@ -1,0 +1,35 @@
+<div class="post-factura-card">
+  <div class="post-header">
+    <div class="profile-pic"></div>
+    <div class="profile-info">
+      <div class="profile-name">{{ profileName }}</div>
+      <div class="profile-meta">•</div>
+    </div>
+  </div>
+  <div class="post-content">
+    {{ postText }}
+  </div>
+  <div class="post-image" *ngIf="postImage || (post?.imageUrls && post.imageUrls.length > 0)" 
+       [ngStyle]="{'background-image': 'url(' + (postImage || post?.imageUrls?.[0]) + ')', 'background-size': 'cover', 'background-position': 'center'}"></div>
+  <div class="post-image" *ngIf="!postImage && (!post?.imageUrls || post.imageUrls.length === 0)"></div>
+  <div class="post-inversiones">
+    <div class="inversiones-label">Inversiones:</div>
+    <div class="inversiones-bar-container">
+      <div class="inversiones-bar-bg">
+        <div class="inversiones-bar-fill" [ngStyle]="{width: inversionesProgreso + '%'}"></div>
+      </div>
+    </div>
+    <button class="invertir-btn">Invertir</button>
+  </div>
+  <div class="post-comments">
+    <a [routerLink]="['/comments', postId]" class="comments-link">
+      <span class="comments-icon">💬</span> {{ reactions.like }} · {{ comentarios }} Comentarios
+    </a>
+  </div>
+  <div class="post-actions">
+    <button class="like-btn" (click)="onReaction('like')">👍 {{ reactions.like }}</button>
+    <button class="love-btn" (click)="onReaction('love')">❤️ {{ reactions.love }}</button>
+    <button class="laugh-btn" (click)="onReaction('laugh')">😂 {{ reactions.laugh }}</button>
+    <button class="comment-btn" (click)="onComment('')">💬 Comentar</button>
+  </div>
+</div>

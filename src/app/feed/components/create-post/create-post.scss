@@ -1,0 +1,97 @@
+.create-post-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 32px;
+  padding: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.create-post-header {
+  margin-bottom: 20px;
+  
+  h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+  }
+}
+
+.create-post-form {
+  .form-group {
+    margin-bottom: 16px;
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+      
+      &:focus {
+        outline: none;
+        border-color: #3498db;
+      }
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+  }
+  
+  .form-actions {
+    margin-top: 20px;
+    
+    .submit-btn, .test-btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover:not(:disabled) {
+        background: #2980b9;
+      }
+      
+      &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    }
+    
+    .test-btn {
+      background: #27ae60;
+      margin-left: 10px;
+      
+      &:hover:not(:disabled) {
+        background: #229954;
+      }
+    }
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    background: #fdf2f2;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+} 

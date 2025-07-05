@@ -1,0 +1,12 @@
+<div class="comment-card">
+  <div class="comment-header">
+    <div class="profile-pic" *ngIf="profileImage" [ngStyle]="{'background-image': 'url(' + profileImage + ')', 'background-size': 'cover', 'background-position': 'center'}"></div>
+    <div class="profile-pic" *ngIf="!profileImage"></div>
+    <div class="profile-info">
+      <div class="profile-name">{{ profileName }}</div>
+    </div>
+  </div>
+  <div class="comment-content">
+    {{ commentText }}
+  </div>
+</div>

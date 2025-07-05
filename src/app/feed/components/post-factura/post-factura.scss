@@ -1,0 +1,144 @@
+.post-factura-card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 32px;
+  padding: 16px 16px 0 16px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  background: #222;
+  border-radius: 6px;
+  margin-right: 12px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.profile-meta {
+  font-size: 12px;
+  color: #888;
+}
+
+.post-content {
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.post-image {
+  width: 100%;
+  height: 260px;
+  background: repeating-conic-gradient(#888 0% 25%, #ccc 0% 50%) 50% / 40px 40px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.post-inversiones {
+  display: flex;
+  align-items: center;
+  background: #fafafa;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.inversiones-label {
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.inversiones-bar-container {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.inversiones-bar-bg {
+  width: 100%;
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.inversiones-bar-fill {
+  height: 100%;
+  background: #2e7d32;
+  border-radius: 5px 0 0 5px;
+}
+
+.invertir-btn {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.invertir-btn:hover {
+  background: #16a34a;
+}
+
+.post-comments {
+  font-size: 14px;
+  color: #555;
+  margin: 8px 0 0 0;
+  display: flex;
+  align-items: center;
+}
+.comments-icon {
+  margin-right: 6px;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0 8px 0;
+}
+.like-btn, .comment-btn, .love-btn, .laugh-btn {
+  background: none;
+  border: none;
+  color: #444;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.like-btn:hover, .comment-btn:hover, .love-btn:hover, .laugh-btn:hover {
+  background: #f0f0f0;
+}
+
+.comments-link {
+  color: #444;
+  text-decoration: none;
+  cursor: pointer;
+  transition: text-decoration 0.2s;
+}
+.comments-link:hover {
+  text-decoration: underline;
+}
