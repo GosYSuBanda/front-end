@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build --configuration=production
 
 # Despliegue en servicio Web
-FROM nginx:1.27-alpine
+FROM nginx:1.29.0-alpine
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d
 COPY --from=build /app/dist/finsmart-frontend/browser /usr/share/nginx/html
