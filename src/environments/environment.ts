@@ -8,6 +8,5 @@ export const environment = {
 
 function getApiUrl(): string {
   
-  // En Docker o producción, usar path relativo (Nginx hace proxy)
-  return '/api';
+  return 'http://localhost:3000/api';
 } 
