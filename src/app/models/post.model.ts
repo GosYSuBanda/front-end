@@ -8,6 +8,8 @@ export interface Reactions {
   like: number;
   love: number;
   laugh: number;
+  angry?: number;
+  sad?: number;
 }
 
 export interface Author {

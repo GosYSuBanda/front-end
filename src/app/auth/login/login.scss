@@ -101,4 +101,10 @@ input {
   color: #222;
   text-decoration: underline;
   font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.signup-link a:hover {
+  color: #1790c8;
 }

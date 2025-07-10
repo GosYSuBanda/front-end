@@ -1,18 +1,64 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { API_CONFIG } from '../config/api.config';
 
 export interface User {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber?: string;
+  dateOfBirth?: string;
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
   roleId?: string;
+  status?: string;
+  emailVerified?: boolean;
+  lastLogin?: string;
+  preferences?: {
+    language: string;
+    currency: string;
+    notifications: {
+      email: boolean;
+      sms: boolean;
+      push: boolean;
+    };
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
-  token: string | null;
+}
+
+export interface SignupRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  roleId: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+  };
 }
 
 @Injectable({
@@ -21,11 +67,10 @@ export interface AuthState {
 export class AuthService {
   private authState = new BehaviorSubject<AuthState>({
     isAuthenticated: false,
-    user: null,
-    token: null
+    user: null
   });
 
-  constructor() {
+  constructor(private http: HttpClient) {
     // Check if user is already logged in (from localStorage)
     this.loadStoredAuth();
   }
@@ -50,12 +95,16 @@ export class AuthService {
     return this.authState.value.isAuthenticated;
   }
 
-  // Login user
-  login(user: User, token: string): void {
+  // Login user with API
+  loginWithAPI(loginData: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${API_CONFIG.baseUrl}/users/sign-in`, loginData);
+  }
+
+  // Login user (internal method)
+  login(user: User): void {
     const authState: AuthState = {
       isAuthenticated: true,
-      user,
-      token
+      user
     };
     
     this.authState.next(authState);
@@ -66,12 +115,16 @@ export class AuthService {
   logout(): void {
     const authState: AuthState = {
       isAuthenticated: false,
-      user: null,
-      token: null
+      user: null
     };
     
     this.authState.next(authState);
     this.clearStoredAuth();
+  }
+
+  // Signup user
+  signup(signupData: SignupRequest): Observable<any> {
+    return this.http.post(`${API_CONFIG.baseUrl}/users/sign-up`, signupData);
   }
 
   // Save auth to localStorage

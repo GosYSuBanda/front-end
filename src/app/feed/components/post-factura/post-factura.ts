@@ -1,12 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Reactions } from '../../../models/post.model';
 
 @Component({
   selector: 'app-post-factura',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './post-factura.html',
   styleUrl: './post-factura.scss'
 })
@@ -23,6 +23,15 @@ export class PostFactura {
 
   @Output() reaction = new EventEmitter<'like' | 'love' | 'laugh'>();
   @Output() comment = new EventEmitter<string>();
+
+  ngOnInit() {
+    console.log('PostFactura - Reactions received:', this.reactions);
+    console.log('PostFactura - Reactions type:', typeof this.reactions);
+    console.log('PostFactura - Reactions isArray:', Array.isArray(this.reactions));
+    console.log('PostFactura - Likes count:', this.reactions.like);
+    console.log('PostFactura - Love count:', this.reactions.love);
+    console.log('PostFactura - Laugh count:', this.reactions.laugh);
+  }
 
   onReaction(type: 'like' | 'love' | 'laugh'): void {
     this.reaction.emit(type);
