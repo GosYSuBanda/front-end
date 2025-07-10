@@ -20,6 +20,28 @@ export class FeedList implements OnInit {
 
   constructor(private postService: PostService) {}
 
+  // Helper function to transform reactions from array to object
+  private transformReactions(reactions: any): any {
+    if (Array.isArray(reactions)) {
+      const reactionsCount = {
+        like: 0,
+        love: 0,
+        laugh: 0,
+        angry: 0,
+        sad: 0
+      };
+      
+      reactions.forEach((reaction: any) => {
+        if (reactionsCount.hasOwnProperty(reaction.type)) {
+          (reactionsCount as any)[reaction.type]++;
+        }
+      });
+      
+      return reactionsCount;
+    }
+    return reactions;
+  }
+
   ngOnInit(): void {
     this.loadPosts();
   }
@@ -32,6 +54,23 @@ export class FeedList implements OnInit {
       next: (response) => {
         console.log('Posts response:', response);
         this.posts = response.data;
+        
+        // Debug: Verificar las reacciones de cada post
+        this.posts.forEach((post, index) => {
+          // Transformar reacciones si vienen como array
+          post.reactions = this.transformReactions(post.reactions);
+          
+          console.log(`Post ${index + 1} (${post._id}):`, {
+            content: post.content.substring(0, 50) + '...',
+            reactions: post.reactions,
+            reactionsType: typeof post.reactions,
+            isArray: Array.isArray(post.reactions),
+            likes: post.reactions?.like || 0,
+            loves: post.reactions?.love || 0,
+            laughs: post.reactions?.laugh || 0
+          });
+        });
+        
         this.filterPosts();
         console.log('Posts loaded:', this.posts.length);
         this.loading = false;
@@ -47,10 +86,15 @@ export class FeedList implements OnInit {
   onReaction(postId: string, reactionType: 'like' | 'love' | 'laugh'): void {
     this.postService.addReaction(postId, reactionType).subscribe({
       next: (updatedPost) => {
+        // Transformar reacciones si vienen como array
+        updatedPost.reactions = this.transformReactions(updatedPost.reactions);
+        console.log('Updated post reactions after transformation:', updatedPost.reactions);
+        
         // Update the post in the local array
         const index = this.posts.findIndex(p => p._id === postId);
         if (index !== -1) {
           this.posts[index] = updatedPost;
+          this.filterPosts(); // Re-filter to update the view
         }
       },
       error: (error) => {
@@ -62,10 +106,14 @@ export class FeedList implements OnInit {
   onComment(postId: string, comment: string): void {
     this.postService.addComment(postId, { comment: comment }).subscribe({
       next: (updatedPost) => {
+        // Transformar reacciones si vienen como array
+        updatedPost.reactions = this.transformReactions(updatedPost.reactions);
+        
         // Update the post in the local array
         const index = this.posts.findIndex(p => p._id === postId);
         if (index !== -1) {
           this.posts[index] = updatedPost;
+          this.filterPosts(); // Re-filter to update the view
         }
       },
       error: (error) => {

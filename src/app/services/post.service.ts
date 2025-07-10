@@ -21,10 +21,29 @@ export class PostService {
 
   getPosts(): Observable<PostResponse> {
     return this.http.get<{success: boolean, message: string, data: Post[], pagination?: any}>(this.apiUrl).pipe(
-      map(response => ({
-        success: response.success,
-        data: response.data
-      }))
+      map(response => {
+        console.log('PostService - Raw response from backend:', response);
+        
+        // Debug: Verificar las reacciones en cada post
+        if (response.data && response.data.length > 0) {
+          response.data.forEach((post, index) => {
+            console.log(`PostService - Post ${index + 1} reactions:`, {
+              postId: post._id,
+              reactions: post.reactions,
+              reactionsType: typeof post.reactions,
+              isArray: Array.isArray(post.reactions),
+              likes: post.reactions?.like || 0,
+              loves: post.reactions?.love || 0,
+              laughs: post.reactions?.laugh || 0
+            });
+          });
+        }
+        
+        return {
+          success: response.success,
+          data: response.data
+        };
+      })
     );
   }
 
@@ -98,7 +117,15 @@ export class PostService {
       type: reactionType
     };
     console.log('Sending reaction payload:', payload);
-    return this.http.post<Post>(`${this.apiUrl}/${postId}/reactions`, payload);
+    
+    // El backend solo devuelve un mensaje de éxito, no el post actualizado
+    // Por eso necesitamos obtener el post actualizado después
+    return this.http.post<{success: boolean, message: string}>(`${this.apiUrl}/${postId}/reactions`, payload).pipe(
+      switchMap(() => {
+        // Después de agregar la reacción, obtener el post actualizado
+        return this.getPostById(postId);
+      })
+    );
   }
 
   addComment(postId: string, comment: { comment: string }): Observable<Post> {

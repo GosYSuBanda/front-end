@@ -23,8 +23,8 @@
       [post]="post"
       [inversionesProgreso]="60"
       [comentarios]="post.comments.length"
-      [likes]="post.reactions.like"
-      [reactions]="post.reactions"
+      [likes]="post.reactions?.like || 0"
+      [reactions]="post.reactions || { like: 0, love: 0, laugh: 0 }"
       (reaction)="onReaction(post._id, $event)"
       (comment)="onComment(post._id, $event)"
     ></app-post-factura>
@@ -38,8 +38,7 @@
       [postImage]="post.imageUrls?.[0] || post.images[0] || ''"
       [post]="post"
       [comentarios]="post.comments.length"
-      [likes]="post.reactions.like"
-      [reactions]="post.reactions"
+      [reactions]="post.reactions || { like: 0, love: 0, laugh: 0 }"
       (reaction)="onReaction(post._id, $event)"
       (comment)="onComment(post._id, $event)"
     ></app-post-experiencia>

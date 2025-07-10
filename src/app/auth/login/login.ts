@@ -1,18 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService, LoginRequest } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
 export class Login {
-  loginData = {
+  loginData: LoginRequest = {
     email: '',
     password: ''
   };
@@ -33,40 +33,29 @@ export class Login {
     this.isSubmitting = true;
     this.error = null;
 
-    // Simular login (en una app real, esto sería una llamada al backend)
-    setTimeout(() => {
-      // Ejemplo de respuesta del backend
-      const mockUser = {
-        _id: '6868a70d564b930d758ff13a', // ID del usuario que existe en la base de datos
-        firstName: 'Juan',
-        lastName: 'Pérez',
-        email: this.loginData.email,
-        roleId: 'user'
-      };
-      const mockToken = 'mock-jwt-token';
-
-      // Guardar en AuthService
-      this.authService.login(mockUser, mockToken);
-      
-      this.isSubmitting = false;
-      
-      // Redirigir al feed
-      this.router.navigate(['/feed']);
-    }, 1000);
-  }
-
-  // Método temporal para simular login sin backend
-  quickLogin(): void {
-    const mockUser = {
-      _id: '6868a70d564b930d758ff13a', // ID del usuario que existe en la base de datos
-      firstName: 'Juan',
-      lastName: 'Pérez',
-      email: 'juan@test.com',
-      roleId: 'user'
-    };
-    const mockToken = 'mock-jwt-token';
-
-    this.authService.login(mockUser, mockToken);
-    this.router.navigate(['/feed']);
+    this.authService.loginWithAPI(this.loginData).subscribe({
+      next: (response) => {
+        // Login successful - store user data
+        this.authService.login(response.data.user);
+        
+        this.isSubmitting = false;
+        
+        // Redirect to feed
+        this.router.navigate(['/feed']);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        
+        if (error.error && error.error.message) {
+          this.error = error.error.message;
+        } else if (error.status === 401) {
+          this.error = 'Email o contraseña incorrectos';
+        } else {
+          this.error = 'Error al iniciar sesión. Por favor intenta nuevamente.';
+        }
+        
+        console.error('Login error:', error);
+      }
+    });
   }
 }

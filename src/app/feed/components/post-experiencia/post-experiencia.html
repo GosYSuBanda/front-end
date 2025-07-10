@@ -14,13 +14,12 @@
   <div class="post-image" *ngIf="!postImage && (!post?.imageUrls || post.imageUrls.length === 0)"></div>
   <div class="post-comments">
     <a [routerLink]="['/comments', postId]" class="comments-link">
-      <span class="comments-icon">💬</span> {{ reactions.like }} · {{ comentarios }} Comentarios
+      <span class="comments-icon">💬</span> {{ comentarios }} Comentarios
     </a>
   </div>
   <div class="post-actions">
     <button class="like-btn" (click)="onReaction('like')">👍 {{ reactions.like }}</button>
     <button class="love-btn" (click)="onReaction('love')">❤️ {{ reactions.love }}</button>
     <button class="laugh-btn" (click)="onReaction('laugh')">😂 {{ reactions.laugh }}</button>
-    <button class="comment-btn" (click)="onComment('')">💬 Comentar</button>
   </div>
 </div>

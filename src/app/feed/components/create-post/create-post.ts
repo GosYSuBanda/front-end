@@ -65,48 +65,4 @@ export class CreatePost {
     };
   }
 
-  createTestPosts(): void {
-    const testPosts = [
-      {
-        title: 'Mi primera factura',
-        content: 'Acabo de recibir mi primera factura de servicios. ¡Es emocionante empezar a manejar mis finanzas!',
-        postType: 'invoice' as const
-      },
-      {
-        title: 'Experiencia con inversiones',
-        content: 'Hoy aprendí sobre inversiones en la bolsa. Es fascinante cómo funciona el mercado financiero.',
-        postType: 'financial' as const
-      },
-      {
-        title: 'Consejos de ahorro',
-        content: 'Comparto algunos consejos que me han ayudado a ahorrar dinero: 1) Crear un presupuesto mensual, 2) Automatizar ahorros, 3) Reducir gastos innecesarios.',
-        postType: 'general' as const
-      }
-    ];
-
-    this.isSubmitting = true;
-    let createdCount = 0;
-
-    testPosts.forEach((post, index) => {
-      setTimeout(() => {
-        this.postService.createPost(post).subscribe({
-          next: (newPost) => {
-            console.log(`Test post ${index + 1} created:`, newPost);
-            createdCount++;
-            if (createdCount === testPosts.length) {
-              this.isSubmitting = false;
-              window.location.reload();
-            }
-          },
-          error: (error) => {
-            console.error(`Error creating test post ${index + 1}:`, error);
-            createdCount++;
-            if (createdCount === testPosts.length) {
-              this.isSubmitting = false;
-            }
-          }
-        });
-      }, index * 500); // Delay between posts
-    });
-  }
 } 

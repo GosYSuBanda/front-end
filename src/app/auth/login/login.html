@@ -36,16 +36,7 @@
       <span *ngIf="!isSubmitting">Iniciar Sesión</span>
     </button>
     
-    <!-- Quick login for testing -->
-    <button 
-      type="button" 
-      class="quick-login-btn" 
-      (click)="quickLogin()"
-      [disabled]="isSubmitting"
-    >
-      Login Rápido (Prueba)
-    </button>
-    
+  
     <div class="signup-link">
       No tienes cuenta? <a routerLink="/signup">Registrarse</a>
     </div>
