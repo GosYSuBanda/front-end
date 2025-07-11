@@ -135,7 +135,7 @@ export interface AuthState {
 }
 
 export interface JwtPayload {
-  sub: string; // user ID
+  sub: string; // user ID (puede ser userId del backend)
   email: string;
   roles: string[];
   permissions: string[];
@@ -143,6 +143,13 @@ export interface JwtPayload {
   exp: number;
   iss: string;
   aud: string;
+  // Campos adicionales del backend
+  userId?: string; // Campo usado por el backend
+  role?: {
+    _id: string;
+    name: string;
+    permissions: Record<string, boolean>;
+  };
 }
 
 export interface AuthError {

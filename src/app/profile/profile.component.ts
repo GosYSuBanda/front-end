@@ -15,6 +15,7 @@ import { AvatarComponent } from '../shared/components/avatar/avatar.component';
 import { TimeAgoPipe } from '../shared/pipes/time-ago.pipe';
 import { ModalComponent } from '../shared/components/modal/modal.component';
 import { ButtonComponent } from '../shared/components/button/button.component';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -133,18 +134,57 @@ export class ProfileComponent implements OnInit, OnDestroy {
    */
   showDebugInfo(): void {
     console.log('🔍 DEBUG INFO:');
+    console.log('=== USER INFO ===');
     console.log('Current User:', this.currentUser);
     console.log('Profile User:', this.profileUser);
-    console.log('User Posts:', this.userPosts);
-    console.log('User Metrics:', this.userMetrics);
     console.log('Is Own Profile:', this.isOwnProfile);
-    console.log('Is Loading:', this.isLoading);
-    console.log('Is Loading Posts:', this.isLoadingPosts);
-    console.log('Error:', this.error);
+    
+    console.log('=== POSTS INFO ===');
+    console.log('User Posts:', this.userPosts);
     console.log('Current Page:', this.currentPage);
     console.log('Has More Posts:', this.hasMorePosts);
+    
+    console.log('=== METRICS INFO ===');
+    console.log('User Metrics:', this.userMetrics);
+    
+    console.log('=== LOADING STATES ===');
+    console.log('Is Loading:', this.isLoading);
+    console.log('Is Loading Posts:', this.isLoadingPosts);
+    console.log('Is Loading Metrics:', this.isLoadingMetrics);
+    
+    console.log('=== ERROR INFO ===');
+    console.log('Error:', this.error);
+    
+    console.log('=== ROUTE INFO ===');
     console.log('Route Params:', this.route.snapshot.params);
-    console.log('API Token:', localStorage.getItem('finsmart_access_token') ? 'Present' : 'Missing');
+    console.log('Current URL:', window.location.href);
+    
+    console.log('=== TOKEN INFO ===');
+    const accessToken = localStorage.getItem('finsmart_access_token');
+    const refreshToken = localStorage.getItem('finsmart_refresh_token');
+    const userData = localStorage.getItem('finsmart_user_data');
+    
+    console.log('Access Token:', accessToken ? 'Present' : 'Missing');
+    if (accessToken) {
+      console.log('Token Format:', accessToken.split('.').length === 3 ? 'Valid' : 'Invalid');
+      console.log('Token Preview:', accessToken.substring(0, 20) + '...');
+    }
+    console.log('Refresh Token:', refreshToken ? 'Present' : 'Missing');
+    console.log('User Data:', userData ? 'Present' : 'Missing');
+    
+    console.log('=== API CONFIG ===');
+    console.log('Environment:', environment);
+    console.log('API URL:', environment.apiUrl);
+    console.log('Production:', environment.production);
+    
+    console.log('=== BROWSER INFO ===');
+    console.log('User Agent:', navigator.userAgent);
+    console.log('LocalStorage Available:', typeof localStorage !== 'undefined');
+    console.log('SessionStorage Available:', typeof sessionStorage !== 'undefined');
+    
+    console.log('=== NETWORK INFO ===');
+    console.log('Online:', navigator.onLine);
+    console.log('Connection Type:', (navigator as any).connection?.effectiveType || 'Unknown');
   }
 
   /**

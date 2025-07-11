@@ -78,6 +78,13 @@ export class AuthService {
 
     if (accessToken && refreshToken && userData) {
       try {
+        // Validate token format
+        if (accessToken.split('.').length !== 3) {
+          console.warn('⚠️ Invalid token format, clearing auth state');
+          this.clearAuthState();
+          return;
+        }
+
         const user = JSON.parse(userData);
         const tokenPayload = this.decodeToken(accessToken);
         
@@ -93,7 +100,7 @@ export class AuthService {
           
           this.scheduleTokenRefresh(tokenPayload.exp);
         } else {
-          console.log('⚠️ Token expired, clearing auth state');
+          console.log('⚠️ Token expired or invalid, clearing auth state');
           this.clearAuthState();
         }
       } catch (error) {
@@ -353,11 +360,15 @@ export class AuthService {
    * Handle successful authentication
    */
   private handleAuthSuccess(response: LoginResponse | RegisterResponse, rememberMe = false): void {
-    console.log('🎉 Auth success, storing tokens:', { 
-      hasAccessToken: !!response.accessToken,
-      hasRefreshToken: !!response.refreshToken,
-      hasUser: !!response.user
-    });
+    console.log('🎉 Auth success, response structure:', response);
+    
+    // El backend envía: { success: true, message: "...", data: { user, accessToken, refreshToken } }
+    // El ApiService extrae solo el 'data', así que response ya es el objeto con user, accessToken, etc.
+    
+    if (!response || !response.accessToken) {
+      console.error('❌ Invalid response structure:', response);
+      return;
+    }
 
     const tokenPayload = this.decodeToken(response.accessToken);
     
@@ -394,6 +405,13 @@ export class AuthService {
    * Handle token refresh
    */
   private handleTokenRefresh(response: RefreshTokenResponse): void {
+    console.log('🔄 Token refresh response:', response);
+    
+    if (!response || !response.accessToken) {
+      console.error('❌ Invalid refresh response structure:', response);
+      return;
+    }
+    
     const tokenPayload = this.decodeToken(response.accessToken);
     
     if (tokenPayload) {
@@ -410,6 +428,8 @@ export class AuthService {
 
       // Schedule next refresh
       this.scheduleTokenRefresh(tokenPayload.exp);
+    } else {
+      console.error('❌ Failed to decode refresh token');
     }
   }
 
@@ -487,11 +507,51 @@ export class AuthService {
    */
   private decodeToken(token: string): JwtPayload | null {
     try {
+      // Validate token format
+      if (!token || token.split('.').length !== 3) {
+        console.warn('⚠️ Invalid token format');
+        return null;
+      }
+
       const payload = token.split('.')[1];
-      const decodedPayload = atob(payload);
-      return JSON.parse(decodedPayload);
+      
+      // Handle base64 padding issues
+      const paddedPayload = payload + '='.repeat((4 - payload.length % 4) % 4);
+      const decodedPayload = atob(paddedPayload);
+      
+      const parsedPayload = JSON.parse(decodedPayload);
+      
+      console.log('🔍 Token payload structure:', {
+        hasUserId: !!parsedPayload.userId,
+        hasSub: !!parsedPayload.sub,
+        hasExp: !!parsedPayload.exp,
+        hasRole: !!parsedPayload.role,
+        hasRoles: !!parsedPayload.roles,
+        payload: parsedPayload
+      });
+      
+      // Validate required fields - el backend usa userId en lugar de sub
+      if (!parsedPayload.exp || (!parsedPayload.sub && !parsedPayload.userId)) {
+        console.warn('⚠️ Token missing required fields (exp or sub/userId)');
+        return null;
+      }
+      
+      // Normalizar el payload para que coincida con la interfaz JwtPayload
+      const normalizedPayload: JwtPayload = {
+        sub: parsedPayload.sub || parsedPayload.userId, // Usar sub o userId
+        email: parsedPayload.email || '',
+        roles: parsedPayload.roles || (parsedPayload.role ? [parsedPayload.role.name] : []),
+        permissions: parsedPayload.permissions || (parsedPayload.role?.permissions ? Object.keys(parsedPayload.role.permissions) : []),
+        iat: parsedPayload.iat || 0,
+        exp: parsedPayload.exp,
+        iss: parsedPayload.iss || 'finsmart-network',
+        aud: parsedPayload.aud || 'finsmart-frontend'
+      };
+      
+      console.log('✅ Token decoded and normalized successfully');
+      return normalizedPayload;
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error('❌ Error decoding token:', error);
       return null;
     }
   }
@@ -516,6 +576,8 @@ export class AuthService {
    * Clear auth state
    */
   private clearAuthState(): void {
+    console.log('🧹 Clearing auth state...');
+    
     this.updateAuthState({
       isAuthenticated: false,
       user: null,
@@ -525,13 +587,28 @@ export class AuthService {
       lastActivity: null,
       error: null
     });
+    
+    // Clear storage
     this.storageService.removeItem(this.TOKEN_KEY);
     this.storageService.removeItem(this.REFRESH_TOKEN_KEY);
     this.storageService.removeItem(this.USER_KEY);
     this.storageService.removeItem(this.REMEMBER_ME_KEY);
+    
+    // Clear refresh timer
     if (this.refreshTokenTimer) {
       clearTimeout(this.refreshTokenTimer);
     }
+    
+    console.log('✅ Auth state cleared');
+  }
+
+  /**
+   * Clear invalid tokens and redirect to login
+   */
+  clearInvalidTokens(): void {
+    console.log('🚨 Clearing invalid tokens...');
+    this.clearAuthState();
+    this.router.navigate(['/login']);
   }
 
   /**

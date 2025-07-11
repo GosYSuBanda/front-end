@@ -1,4 +1,5 @@
+// Environment configuration for production
 export const environment = {
   production: true,
-  apiUrl: '/api'  // En producción/Docker siempre usar path relativo
+  apiUrl: '/api'  // Siempre usar URL relativa en producción
 }; 

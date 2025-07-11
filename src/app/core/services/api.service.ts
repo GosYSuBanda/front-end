@@ -293,11 +293,21 @@ export class ApiService {
    * Create HTTP options
    */
   private createHttpOptions(options?: any): any {
+    const authToken = this.getAuthToken();
+    
     const defaultOptions = {
       headers: new HttpHeaders({
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
       })
     };
+
+    // Log token status for debugging
+    if (authToken) {
+      console.log('🔑 Token found for request:', authToken.substring(0, 20) + '...');
+    } else {
+      console.log('⚠️ No token found for request');
+    }
 
     return { ...defaultOptions, ...options };
   }
@@ -362,6 +372,19 @@ export class ApiService {
       // Server-side error
       const serverError = error.error as ErrorResponse;
       
+      // Handle 401 Unauthorized - clear invalid tokens
+      if (error.status === 401) {
+        console.warn('🚨 401 Unauthorized - clearing invalid tokens');
+        localStorage.removeItem('finsmart_access_token');
+        localStorage.removeItem('finsmart_refresh_token');
+        localStorage.removeItem('finsmart_user_data');
+        
+        // Redirect to login if not already there
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+      
       // Si el servidor envía un error en formato ApiResponse
       if (serverError && typeof serverError === 'object') {
         console.error('🔥 Server error response:', serverError);
@@ -385,7 +408,7 @@ export class ApiService {
             errorCode = 'BAD_REQUEST';
             break;
           case 401:
-            errorMessage = 'Token de acceso requerido';
+            errorMessage = 'Sesión expirada. Por favor inicia sesión nuevamente.';
             errorCode = 'UNAUTHORIZED';
             break;
           case 403:
@@ -432,8 +455,24 @@ export class ApiService {
 
   private getAuthToken(): string | null {
     try {
-      return localStorage.getItem('finsmart_access_token');
-    } catch {
+      const token = localStorage.getItem('finsmart_access_token');
+      
+      if (token) {
+        // Validate token format (basic check)
+        if (token.split('.').length === 3) {
+          console.log('✅ Valid token format found');
+          return token;
+        } else {
+          console.warn('⚠️ Invalid token format detected');
+          localStorage.removeItem('finsmart_access_token');
+          return null;
+        }
+      }
+      
+      console.log('ℹ️ No token found in localStorage');
+      return null;
+    } catch (error) {
+      console.error('❌ Error accessing localStorage:', error);
       return null;
     }
   }
