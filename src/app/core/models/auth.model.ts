@@ -13,12 +13,14 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
-  confirmPassword: string;
-  phoneNumber?: string;
-  acceptTerms: boolean;
+  phoneNumber: string;
+  roleId: string;
+  confirmPassword?: string;
+  acceptTerms?: boolean;
   businessInfo?: {
     companyName: string;
     ruc?: string;

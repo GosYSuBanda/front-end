@@ -134,6 +134,26 @@
       margin-top: 0.25rem;
       font-style: italic;
     }
+    
+    .loading-message {
+      font-size: 0.8rem;
+      color: #007bff;
+      margin-top: 0.25rem;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      &:before {
+        content: '';
+        width: 12px;
+        height: 12px;
+        border: 2px solid #007bff;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+    }
   }
   
   .business-info-section {

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { RegisterRequest } from '../../core/models/auth.model';
+import { RoleService, Role } from '../../services/role.service';
 
 @Component({
   selector: 'app-signup',
@@ -13,11 +14,13 @@ import { RegisterRequest } from '../../core/models/auth.model';
 })
 export class Signup implements OnInit {
   signupData: RegisterRequest = {
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
-    confirmPassword: '',
     phoneNumber: '',
+    roleId: '', // Will be selected by user
+    confirmPassword: '',
     acceptTerms: false,
     businessInfo: {
       companyName: '',
@@ -31,14 +34,42 @@ export class Signup implements OnInit {
   errorMessage = '';
   successMessage = '';
   showBusinessInfo = false;
+  
+  // New properties for roles
+  availableRoles: Role[] = [];
+  isLoadingRoles = false;
 
   constructor(
     private authService: AuthService,
+    private roleService: RoleService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    // No need to load roles - they're handled by backend
+    this.loadRoles();
+  }
+
+  /**
+   * Load available roles from the server
+   */
+  loadRoles(): void {
+    this.isLoadingRoles = true;
+    this.roleService.getRoles().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.availableRoles = response.data;
+          console.log('Roles loaded:', this.availableRoles);
+        } else {
+          this.errorMessage = 'Error al cargar los roles disponibles';
+        }
+        this.isLoadingRoles = false;
+      },
+      error: (error) => {
+        console.error('Error loading roles:', error);
+        this.errorMessage = 'Error al cargar los roles disponibles';
+        this.isLoadingRoles = false;
+      }
+    });
   }
 
   toggleBusinessInfo(): void {
@@ -62,9 +93,16 @@ export class Signup implements OnInit {
     this.successMessage = '';
 
     // Validate required fields
-    if (!this.signupData.name || !this.signupData.email || 
-        !this.signupData.password || !this.signupData.confirmPassword) {
+    if (!this.signupData.firstName || !this.signupData.lastName || !this.signupData.email || 
+        !this.signupData.password || !this.signupData.confirmPassword || !this.signupData.phoneNumber) {
       this.errorMessage = 'Por favor completa todos los campos requeridos';
+      this.isLoading = false;
+      return;
+    }
+
+    // Validate role selection
+    if (!this.signupData.roleId) {
+      this.errorMessage = 'Por favor selecciona un rol';
       this.isLoading = false;
       return;
     }
@@ -108,9 +146,19 @@ export class Signup implements OnInit {
       }
     }
 
-    console.log('Signup data:', this.signupData);
+    // Prepare data for backend (only send required fields)
+    const registrationData = {
+      firstName: this.signupData.firstName,
+      lastName: this.signupData.lastName,
+      email: this.signupData.email,
+      password: this.signupData.password,
+      phoneNumber: this.signupData.phoneNumber,
+      roleId: this.signupData.roleId
+    };
 
-    this.authService.register(this.signupData).subscribe({
+    console.log('Signup data:', registrationData);
+
+    this.authService.register(registrationData).subscribe({
       next: (response: any) => {
         this.successMessage = 'Cuenta creada exitosamente';
         this.isLoading = false;

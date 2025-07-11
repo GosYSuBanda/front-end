@@ -8,15 +8,27 @@
     <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
       <!-- Basic Info -->
       <div class="form-group">
-        <label for="name">Nombre Completo *</label>
+        <label for="firstName">Nombre *</label>
         <input
           type="text"
-          id="name"
-          name="name"
-          [(ngModel)]="signupData.name"
+          id="firstName"
+          name="firstName"
+          [(ngModel)]="signupData.firstName"
           required
           class="form-control"
-          placeholder="Ingresa tu nombre completo">
+          placeholder="Ingresa tu nombre">
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Apellido *</label>
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          [(ngModel)]="signupData.lastName"
+          required
+          class="form-control"
+          placeholder="Ingresa tu apellido">
       </div>
 
       <div class="form-group">
@@ -56,14 +68,33 @@
       </div>
 
       <div class="form-group">
-        <label for="phoneNumber">Teléfono</label>
+        <label for="phoneNumber">Teléfono *</label>
         <input
           type="tel"
           id="phoneNumber"
           name="phoneNumber"
           [(ngModel)]="signupData.phoneNumber"
+          required
           class="form-control"
           placeholder="+51 999 999 999">
+      </div>
+
+      <div class="form-group">
+        <label for="roleId">Tipo de Cuenta *</label>
+        <select
+          id="roleId"
+          name="roleId"
+          [(ngModel)]="signupData.roleId"
+          required
+          class="form-control">
+          <option value="">Selecciona el tipo de cuenta</option>
+          <option *ngFor="let role of availableRoles" [value]="role._id">
+            {{ role.name }}
+          </option>
+        </select>
+        <div *ngIf="isLoadingRoles" class="loading-message">
+          Cargando tipos de cuenta...
+        </div>
       </div>
 
       <!-- Business Info Toggle -->
