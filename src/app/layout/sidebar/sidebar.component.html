@@ -1,0 +1,177 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <button 
+      type="button" 
+      class="toggle-button"
+      (click)="toggleSidebar()"
+      [title]="isCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <div class="sidebar-content">
+    <!-- User Profile Section -->
+    <div class="user-profile" *ngIf="currentUser">
+      <div class="user-avatar">
+        <app-avatar 
+          [user]="currentUser"
+          [size]="isCollapsed ? 'sm' : 'md'"
+          [showBadge]="true">
+        </app-avatar>
+      </div>
+      <div class="user-info" *ngIf="!isCollapsed">
+        <h3 class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</h3>
+        <p class="user-email">{{ currentUser.email }}</p>
+        <div class="user-stats">
+          <div class="stat">
+            <span class="stat-number">{{ currentUser.metrics?.totalPosts || 0 }}</span>
+            <span class="stat-label">Posts</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">{{ currentUser.metrics?.totalConnections || 0 }}</span>
+            <span class="stat-label">Conexiones</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="navigation-menu">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a 
+            routerLink="/feed" 
+            routerLinkActive="active"
+            class="nav-link"
+            (click)="navigateToFeed()"
+            [title]="isCollapsed ? 'Feed' : ''">
+            <i class="fas fa-home"></i>
+            <span *ngIf="!isCollapsed">Feed</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a 
+            routerLink="/messages" 
+            routerLinkActive="active"
+            class="nav-link"
+            (click)="navigateToMessages()"
+            [title]="isCollapsed ? 'Mensajes' : ''">
+            <i class="fas fa-envelope"></i>
+            <span *ngIf="!isCollapsed">Mensajes</span>
+            <span class="badge" *ngIf="!isCollapsed">3</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a 
+            routerLink="/search" 
+            routerLinkActive="active"
+            class="nav-link"
+            (click)="navigateToSearch()"
+            [title]="isCollapsed ? 'Buscar' : ''">
+            <i class="fas fa-search"></i>
+            <span *ngIf="!isCollapsed">Buscar</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a 
+            [routerLink]="['/profile', currentUser?._id]" 
+            routerLinkActive="active"
+            class="nav-link"
+            (click)="navigateToProfile()"
+            [title]="isCollapsed ? 'Mi Perfil' : ''">
+            <i class="fas fa-user"></i>
+            <span *ngIf="!isCollapsed">Mi Perfil</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a 
+            routerLink="/business" 
+            routerLinkActive="active"
+            class="nav-link"
+            (click)="navigateToBusiness()"
+            [title]="isCollapsed ? 'Empresarial' : ''">
+            <i class="fas fa-building"></i>
+            <span *ngIf="!isCollapsed">Empresarial</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions" *ngIf="!isCollapsed">
+      <h4 class="section-title">Acciones Rápidas</h4>
+      <div class="action-buttons">
+        <button 
+          type="button" 
+          class="action-btn primary"
+          (click)="navigateToFeed()">
+          <i class="fas fa-plus"></i>
+          <span>Crear Post</span>
+        </button>
+        <button 
+          type="button" 
+          class="action-btn secondary"
+          (click)="navigateToMessages()">
+          <i class="fas fa-comment"></i>
+          <span>Nuevo Mensaje</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Suggested Connections -->
+    <div class="suggested-connections" *ngIf="!isCollapsed">
+      <h4 class="section-title">Conexiones Sugeridas</h4>
+      <div class="suggestions-list">
+        <div class="suggestion-item">
+          <div class="suggestion-avatar">
+            <app-avatar 
+              [user]="null"
+              [size]="'sm'"
+              [showBadge]="false">
+            </app-avatar>
+          </div>
+          <div class="suggestion-info">
+            <p class="suggestion-name">María González</p>
+            <p class="suggestion-role">Contadora</p>
+          </div>
+          <button type="button" class="connect-btn">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        
+        <div class="suggestion-item">
+          <div class="suggestion-avatar">
+            <app-avatar 
+              [user]="null"
+              [size]="'sm'"
+              [showBadge]="false">
+            </app-avatar>
+          </div>
+          <div class="suggestion-info">
+            <p class="suggestion-name">Juan Pérez</p>
+            <p class="suggestion-role">Consultor</p>
+          </div>
+          <button type="button" class="connect-btn">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    <button 
+      type="button" 
+      class="logout-btn"
+      (click)="logout()"
+      [title]="isCollapsed ? 'Cerrar Sesión' : ''">
+      <i class="fas fa-sign-out-alt"></i>
+      <span *ngIf="!isCollapsed">Cerrar Sesión</span>
+    </button>
+  </div>
+</aside> 

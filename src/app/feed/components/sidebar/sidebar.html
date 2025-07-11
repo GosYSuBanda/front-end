@@ -1,7 +1,9 @@
 <nav class="sidebar-nav">
   <ul>
-    <li [class.active]="selectedFilter === 'inicio'" (click)="selectFilter('inicio')">Inicio</li>
-    <li [class.active]="selectedFilter === 'facturas'" (click)="selectFilter('facturas')">Facturas</li>
-    <li [class.active]="selectedFilter === 'experiencias'" (click)="selectFilter('experiencias')">Experiencias</li>
+    <li [class.active]="selectedFilter === 'following'" (click)="selectFilter('following')">Siguiendo</li>
+    <li [class.active]="selectedFilter === 'discover'" (click)="selectFilter('discover')">Descubrir</li>
+    <li [class.active]="selectedFilter === 'trending'" (click)="selectFilter('trending')">Tendencias</li>
+    <li [class.active]="selectedFilter === 'business'" (click)="selectFilter('business')">Empresarial</li>
+    <li [class.active]="selectedFilter === 'saved'" (click)="selectFilter('saved')">Guardados</li>
   </ul>
 </nav>

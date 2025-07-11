@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService, LoginRequest } from '../../services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
+import { LoginRequest } from '../../core/models/auth.model';
 
 @Component({
   selector: 'app-login',
@@ -33,17 +34,13 @@ export class Login {
     this.isSubmitting = true;
     this.error = null;
 
-    this.authService.loginWithAPI(this.loginData).subscribe({
-      next: (response) => {
-        // Login successful - store user data
-        this.authService.login(response.data.user);
-        
+    this.authService.login(this.loginData).subscribe({
+      next: (response: any) => {
+        // Login successful - redirect to feed
         this.isSubmitting = false;
-        
-        // Redirect to feed
         this.router.navigate(['/feed']);
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isSubmitting = false;
         
         if (error.error && error.error.message) {

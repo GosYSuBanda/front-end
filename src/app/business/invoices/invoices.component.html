@@ -1,0 +1,63 @@
+<div class="invoices-container">
+  <div class="invoices-header">
+    <h1>Gestión de Facturas</h1>
+    <button class="btn btn-primary">Nueva Factura</button>
+  </div>
+
+  <div class="invoices-filters">
+    <div class="filter-group">
+      <label>Estado:</label>
+      <select [(ngModel)]="selectedStatus" class="form-control">
+        <option value="">Todos</option>
+        <option value="draft">Borrador</option>
+        <option value="sent">Enviada</option>
+        <option value="paid">Pagada</option>
+        <option value="overdue">Vencida</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label>Buscar:</label>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        placeholder="Cliente, número..." 
+        class="form-control">
+    </div>
+  </div>
+
+  <div class="invoices-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Número</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Vencimiento</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let invoice of filteredInvoices">
+          <td>{{ invoice.number }}</td>
+          <td>{{ invoice.clientName }}</td>
+          <td>{{ invoice.date | date:'dd/MM/yyyy' }}</td>
+          <td>{{ invoice.dueDate | date:'dd/MM/yyyy' }}</td>
+          <td>${{ invoice.total }}</td>
+          <td>
+            <span [class]="'status-' + invoice.status">
+              {{ getStatusText(invoice.status) }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm">Ver</button>
+            <button class="btn btn-sm">Editar</button>
+            <button class="btn btn-sm">Enviar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> 

@@ -1,9 +1,125 @@
 
 <div class="feed-container">
-  <app-sidebar class="sidebar" (filterChanged)="onFilterChanged($event)"></app-sidebar>
-  <div class="main-content">
-    <app-create-post class="create-post"></app-create-post>
-    <app-feed-list class="feed-list" #feedList></app-feed-list>
+  <!-- Feed Header with Filters -->
+  <div class="feed-header">
+    <div class="feed-controls">
+      <!-- Feed Type Selector -->
+      <div class="feed-type-selector">
+        <div class="selector-tabs">
+          <button 
+            *ngFor="let type of feedTypes"
+            [class.active]="currentFilter === type.value"
+            (click)="onFilterChanged(type.value)"
+            class="tab-button"
+            [title]="type.label">
+            <i [class]="type.icon"></i>
+            <span class="tab-label">{{ type.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input 
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearchChanged(searchQuery)"
+          placeholder="Buscar posts..."
+          class="search-input">
+        <button 
+          type="button"
+          (click)="onSearchChanged(searchQuery)"
+          class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+
+      <!-- Create Post Button -->
+      <button 
+        type="button"
+        (click)="onCreatePostClick()"
+        class="create-post-btn">
+        <i class="fas fa-plus"></i>
+        <span>Crear Post</span>
+      </button>
+    </div>
   </div>
-  <app-asesores class="asesores"></app-asesores>
+
+  <!-- Main Feed Content -->
+  <div class="feed-content">
+    <!-- Main Feed (full width) -->
+    <div class="main-feed">
+      <!-- Create Post Component -->
+      <app-create-post 
+        #createPost
+        (postCreated)="onPostCreated($event)"
+        class="create-post-section">
+      </app-create-post>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ error }}</span>
+        <button type="button" (click)="refreshFeed()" class="retry-btn">
+          <i class="fas fa-redo"></i>
+          Reintentar
+        </button>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading && (posts?.length || 0) === 0" class="loading-container">
+        <app-loading-spinner 
+          [size]="'large'"
+          [color]="'primary'"
+          [message]="'Cargando feed...'">
+        </app-loading-spinner>
+      </div>
+
+      <!-- Feed List -->
+      <app-feed-list 
+        #feedList
+        [posts]="filteredPosts || []"
+        [isLoading]="isLoading"
+        [hasMore]="hasMore"
+        (postUpdated)="onPostUpdated($event)"
+        (postDeleted)="onPostDeleted($event)"
+        (loadMore)="loadMorePosts()"
+        class="feed-list-section">
+      </app-feed-list>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && (posts?.length || 0) === 0" class="empty-state">
+        <i class="fas fa-rss fa-3x"></i>
+        <h3>No hay posts disponibles</h3>
+        <p>Sé el primero en compartir algo o sigue a más usuarios para ver contenido.</p>
+        <button 
+          type="button"
+          (click)="onCreatePostClick()"
+          class="create-first-post-btn">
+          <i class="fas fa-plus"></i>
+          Crear mi primer post
+        </button>
+      </div>
+
+      <!-- Load More Button -->
+      <div *ngIf="hasMore && !isLoading && (posts?.length || 0) > 0" class="load-more-container">
+        <button 
+          type="button"
+          (click)="loadMorePosts()"
+          class="load-more-btn">
+          <i class="fas fa-plus"></i>
+          Cargar más posts
+        </button>
+      </div>
+
+      <!-- Loading More Indicator -->
+      <div *ngIf="isLoading && (posts?.length || 0) > 0" class="loading-more">
+        <app-loading-spinner 
+          [size]="'small'"
+          [color]="'secondary'"
+          [message]="'Cargando más posts...'">
+        </app-loading-spinner>
+      </div>
+    </div>
+  </div>
 </div>

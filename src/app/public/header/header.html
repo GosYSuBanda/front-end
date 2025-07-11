@@ -1,5 +1,129 @@
 <header class="header-container">
-  <a routerLink="/feed" class="logo-link">
-    <img src="../../../assets/images/finsmart-logo.png" alt="Finsmart Logo" class="header-logo">
-  </a>
+  <div class="header-content">
+    <!-- Logo -->
+    <a routerLink="/feed" class="logo-link">
+      <img src="../../../assets/images/finsmart-logo.png" alt="FinSmart Network" class="header-logo">
+      <span class="logo-text">FinSmart Network</span>
+    </a>
+
+    <!-- Navigation Links -->
+    <nav class="nav-links">
+      <a routerLink="/feed" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-home"></i>
+        <span>Feed</span>
+      </a>
+      <a routerLink="/messages" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-envelope"></i>
+        <span>Mensajes</span>
+      </a>
+      <a routerLink="/search" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-search"></i>
+        <span>Buscar</span>
+      </a>
+    </nav>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-wrapper">
+        <input 
+          type="text" 
+          placeholder="Buscar usuarios, posts, empresas..."
+          [(ngModel)]="searchQuery"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+          (input)="onSearchInput()"
+          (keyup.enter)="onSearchSubmit()"
+          class="search-input">
+        <button 
+          type="button" 
+          (click)="onSearchSubmit()"
+          class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+      
+      <!-- Search Suggestions -->
+      <div 
+        *ngIf="isSearchFocused && searchSuggestions.length > 0" 
+        class="search-suggestions">
+        <div 
+          *ngFor="let suggestion of searchSuggestions"
+          (click)="selectSuggestion(suggestion)"
+          class="suggestion-item">
+          <div class="suggestion-avatar">
+            <app-avatar 
+              [user]="suggestion.type === 'user' ? suggestion : null"
+              [size]="'sm'"
+              [showBadge]="false">
+            </app-avatar>
+          </div>
+          <div class="suggestion-content">
+            <div class="suggestion-name">{{ suggestion.name }}</div>
+            <div class="suggestion-type">{{ suggestion.type === 'user' ? 'Usuario' : 'Post' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Profile Menu -->
+    <div class="user-menu" *ngIf="currentUser">
+      <button 
+        type="button"
+        (click)="toggleMenu()"
+        class="user-menu-button">
+        <app-avatar 
+          [user]="currentUser"
+          [size]="'sm'"
+          [showBadge]="true">
+        </app-avatar>
+        <span class="user-name">{{ currentUser.firstName }}</span>
+        <i class="fas fa-chevron-down" [class.rotated]="isMenuOpen"></i>
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div 
+        *ngIf="isMenuOpen" 
+        class="dropdown-menu"
+        (click)="closeMenu()">
+        <a (click)="navigateToProfile()" class="dropdown-item">
+          <i class="fas fa-user"></i>
+          <span>Mi Perfil</span>
+        </a>
+        <a (click)="navigateToMessages()" class="dropdown-item">
+          <i class="fas fa-envelope"></i>
+          <span>Mensajes</span>
+        </a>
+        <a (click)="navigateToSearch()" class="dropdown-item">
+          <i class="fas fa-search"></i>
+          <span>Buscar</span>
+        </a>
+        <div class="dropdown-divider"></div>
+        <a (click)="logout()" class="dropdown-item logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Cerrar Sesión</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Login/Signup Links (when not authenticated) -->
+    <div class="auth-links" *ngIf="!currentUser">
+      <a routerLink="/login" class="auth-link">Iniciar Sesión</a>
+      <a routerLink="/signup" class="auth-link signup">Registrarse</a>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Toggle -->
+  <button 
+    type="button"
+    (click)="toggleMenu()"
+    class="mobile-menu-toggle">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Mobile Menu Overlay -->
+  <div 
+    *ngIf="isMenuOpen" 
+    class="mobile-menu-overlay"
+    (click)="closeMenu()">
+  </div>
 </header>

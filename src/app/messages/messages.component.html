@@ -1,0 +1,411 @@
+<div class="messages-container">
+  <!-- Left Sidebar - Conversations List -->
+  <div class="conversations-sidebar">
+    <!-- Header -->
+    <div class="sidebar-header">
+      <h2>Mensajes</h2>
+      <button 
+        type="button"
+        (click)="openNewConversationModal()"
+        class="new-conversation-btn"
+        title="Nueva conversación">
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="search-filters">
+      <div class="search-container">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange()"
+          placeholder="Buscar conversaciones..."
+          class="search-input">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+
+      <div class="filter-tabs">
+                <button 
+          *ngFor="let filter of filters"
+          [class.active]="conversationFilter === filter.value"
+          (click)="onFilterChange(filter.value)"
+          class="filter-tab">
+          {{ filter.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Conversations List -->
+    <div class="conversations-list">
+      <div *ngIf="isLoadingConversations" class="loading-container">
+        <app-loading-spinner [size]="'small'" [message]="'Cargando conversaciones...'"></app-loading-spinner>
+      </div>
+
+      <div *ngIf="!isLoadingConversations && filteredConversations.length === 0" class="empty-state">
+        <i class="fas fa-comments fa-2x"></i>
+        <p>No hay conversaciones</p>
+        <button 
+          type="button"
+          (click)="openNewConversationModal()"
+          class="start-conversation-btn">
+          Iniciar conversación
+        </button>
+      </div>
+
+      <div
+        *ngFor="let conversation of filteredConversations"
+        [class.active]="selectedConversation?._id === conversation._id"
+        (click)="selectConversation(conversation)"
+        class="conversation-item">
+        
+        <div class="conversation-avatar">
+          <app-avatar
+            [user]="getConversationAvatar(conversation)"
+            [size]="'md'"
+            [showBadge]="false">
+          </app-avatar>
+          <div 
+            *ngIf="conversation.isGroup" 
+            class="group-indicator">
+            <i class="fas fa-users"></i>
+          </div>
+        </div>
+
+        <div class="conversation-content">
+          <div class="conversation-header">
+            <h4 class="conversation-name">{{ getConversationName(conversation) }}</h4>
+            <span class="conversation-time">
+              {{ conversation.lastMessage?.createdAt ? (conversation.lastMessage?.createdAt! | timeAgo) : '' }}
+            </span>
+          </div>
+
+          <div class="conversation-preview">
+            <p class="last-message">
+              <span *ngIf="conversation.lastMessage?.author?._id === currentUser?._id" class="message-prefix">
+                Tú: 
+              </span>
+              {{ conversation.lastMessage?.content || 'Sin mensajes' }}
+            </p>
+            <div class="conversation-badges">
+              <span 
+                *ngIf="conversation.unreadCount > 0"
+                class="unread-badge">
+                {{ conversation.unreadCount }}
+              </span>
+              <i 
+                *ngIf="conversation.isPinned"
+                class="fas fa-thumbtack pin-icon">
+              </i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Chat Area -->
+  <div class="chat-area">
+    <!-- No Conversation Selected -->
+    <div *ngIf="!selectedConversation" class="no-conversation-selected">
+      <i class="fas fa-comments fa-4x"></i>
+      <h3>Selecciona una conversación</h3>
+      <p>Elige una conversación de la lista o inicia una nueva</p>
+      <button 
+        type="button"
+        (click)="openNewConversationModal()"
+        class="start-new-conversation-btn">
+        <i class="fas fa-plus"></i>
+        Nueva conversación
+      </button>
+    </div>
+
+    <!-- Chat Interface -->
+    <div *ngIf="selectedConversation" class="chat-interface">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <div class="chat-info">
+          <app-avatar
+            [user]="getConversationAvatar(selectedConversation)"
+            [size]="'sm'"
+            [showBadge]="true">
+          </app-avatar>
+          <div class="chat-details">
+            <h3>{{ getConversationName(selectedConversation) }}</h3>
+            <p class="chat-status">
+              <span *ngIf="selectedConversation.isGroup">
+                {{ selectedConversation.participants.length }} participantes
+              </span>
+              <span *ngIf="!selectedConversation.isGroup">
+                En línea hace 5 min
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="chat-actions">
+          <button type="button" class="chat-action-btn" title="Llamada de video">
+            <i class="fas fa-video"></i>
+          </button>
+          <button type="button" class="chat-action-btn" title="Llamada de voz">
+            <i class="fas fa-phone"></i>
+          </button>
+          <button type="button" class="chat-action-btn" title="Información">
+            <i class="fas fa-info-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Container -->
+      <div class="messages-container" #messagesContainer>
+        <div *ngIf="isLoadingMessages" class="loading-messages">
+          <app-loading-spinner [size]="'small'" [message]="'Cargando mensajes...'"></app-loading-spinner>
+        </div>
+
+        <div *ngFor="let message of messages" class="message-wrapper">
+          <div 
+            [class.message-own]="message.author._id === currentUser?._id"
+            [class.message-other]="message.author._id !== currentUser?._id"
+            class="message">
+            
+            <!-- Avatar for other users -->
+            <div 
+              *ngIf="message.author._id !== currentUser?._id"
+              class="message-avatar">
+              <app-avatar
+                [user]="message.author"
+                [size]="'xs'"
+                [showBadge]="false">
+              </app-avatar>
+            </div>
+
+            <div class="message-content">
+              <!-- Author name (in groups) -->
+              <div 
+                *ngIf="selectedConversation.isGroup && message.author._id !== currentUser?._id"
+                class="message-author">
+                {{ message.author.name }}
+              </div>
+
+              <!-- Message bubble -->
+              <div class="message-bubble">
+                <!-- Media content -->
+                <div *ngIf="message.media && message.media.length > 0" class="message-media">
+                  <div *ngFor="let media of message.media" class="media-item">
+                    <img 
+                      *ngIf="media.mimeType.startsWith('image')"
+                      [src]="media.url"
+                      [alt]="media.fileName"
+                      class="media-image">
+                    <video 
+                      *ngIf="media.mimeType.startsWith('video')"
+                      [src]="media.url"
+                      controls
+                      class="media-video">
+                    </video>
+                    <a 
+                      *ngIf="!media.mimeType.startsWith('image') && !media.mimeType.startsWith('video')"
+                      [href]="media.url"
+                      [download]="media.fileName"
+                      class="media-file">
+                      <i class="fas fa-file"></i>
+                      {{ media.fileName }}
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Text content -->
+                <div *ngIf="message.content" class="message-text">
+                  {{ message.content }}
+                </div>
+              </div>
+
+              <!-- Message info -->
+              <div class="message-info">
+                <span class="message-time">{{ message.createdAt | timeAgo }}</span>
+                <div 
+                  *ngIf="message.author._id === currentUser?._id"
+                  class="message-status">
+                  <i 
+                    *ngIf="message.readBy.length === 1"
+                    class="fas fa-check message-sent">
+                  </i>
+                  <i 
+                    *ngIf="message.readBy.length > 1"
+                    class="fas fa-check-double message-read">
+                  </i>
+                </div>
+                <button
+                  *ngIf="message.author._id === currentUser?._id"
+                  type="button"
+                  (click)="deleteMessage(message._id)"
+                  class="delete-message-btn"
+                  title="Eliminar mensaje">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div *ngIf="getTypingIndicator(selectedConversation._id)" class="typing-indicator">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="typing-text">{{ getTypingIndicator(selectedConversation._id) }}</span>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <div class="message-input-container">
+        <!-- File Preview -->
+        <div *ngIf="selectedFiles.length > 0" class="file-preview">
+          <div *ngFor="let file of selectedFiles; let i = index" class="file-preview-item">
+            <div class="file-info">
+              <i class="fas fa-file"></i>
+              <span>{{ file.name }}</span>
+            </div>
+            <button 
+              type="button"
+              (click)="removeFile(i)"
+              class="remove-file-btn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="input-wrapper">
+          <button 
+            type="button"
+            class="attachment-btn"
+            title="Adjuntar archivo">
+            <i class="fas fa-paperclip"></i>
+            <input 
+              type="file"
+              multiple
+              (change)="onFileSelected($event)"
+              class="file-input">
+          </button>
+
+          <textarea
+            [(ngModel)]="newMessage"
+            (input)="onMessageInput()"
+            (keydown.enter)="handleEnterKey($event)"
+            placeholder="Escribe un mensaje..."
+            class="message-input"
+            rows="1"></textarea>
+
+          <button 
+            type="button"
+            (click)="sendMessage()"
+            [disabled]="!newMessage.trim() && selectedFiles.length === 0"
+            class="send-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-toast">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ error }}</span>
+    <button type="button" (click)="error = null" class="close-error-btn">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+</div>
+
+<!-- New Conversation Modal -->
+<app-modal
+  #newConversationModal
+  [isOpen]="showNewConversationModal"
+  [title]="'Nueva Conversación'"
+  [size]="'md'"
+  (close)="closeNewConversationModal()">
+  
+  <div class="new-conversation-content">
+    <!-- Search Users -->
+    <div class="user-search">
+      <input
+        type="text"
+        [(ngModel)]="userSearchQuery"
+        (input)="searchUsers()"
+        placeholder="Buscar usuarios..."
+        class="user-search-input">
+    </div>
+
+    <!-- Selected Users -->
+    <div *ngIf="selectedUsers.length > 0" class="selected-users">
+      <h4>Usuarios seleccionados ({{ selectedUsers.length }})</h4>
+      <div class="selected-users-list">
+        <div *ngFor="let user of selectedUsers" class="selected-user">
+          <app-avatar [user]="user" [size]="'xs'"></app-avatar>
+          <span>{{ user.name }}</span>
+          <button 
+            type="button"
+            (click)="toggleUserSelection(user)"
+            class="remove-user-btn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group Name (if multiple users) -->
+    <div *ngIf="selectedUsers.length > 1" class="group-name-input">
+      <label for="groupName">Nombre del grupo</label>
+      <input
+        id="groupName"
+        type="text"
+        [(ngModel)]="newConversationName"
+        placeholder="Introduce un nombre para el grupo"
+        class="form-input">
+    </div>
+
+    <!-- Available Users -->
+    <div class="available-users">
+      <h4>Usuarios disponibles</h4>
+      <div class="users-list">
+        <div
+          *ngFor="let user of availableUsers"
+          [class.selected]="isUserSelected(user)"
+          (click)="toggleUserSelection(user)"
+          class="user-item">
+          <app-avatar [user]="user" [size]="'sm'"></app-avatar>
+          <div class="user-info">
+            <span class="user-name">{{ user.name }}</span>
+            <span class="user-email">{{ user.email || '' }}</span>
+          </div>
+          <div class="user-status">
+            <i 
+              *ngIf="isUserSelected(user)"
+              class="fas fa-check-circle selected-icon">
+            </i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Footer -->
+  <div slot="footer" class="modal-footer">
+    <button 
+      type="button"
+      (click)="closeNewConversationModal()"
+      class="btn btn-secondary">
+      Cancelar
+    </button>
+    <button 
+      type="button"
+      (click)="createConversation()"
+      [disabled]="selectedUsers.length === 0"
+      class="btn btn-primary">
+      {{ selectedUsers.length > 1 ? 'Crear Grupo' : 'Iniciar Chat' }}
+    </button>
+  </div>
+</app-modal> 

@@ -1,74 +1,155 @@
 <div class="create-post-card">
   <div class="create-post-header">
-    <h3>Crear nueva publicación</h3>
+    <h3>¿Qué quieres compartir?</h3>
   </div>
   
-  <form (ngSubmit)="onSubmit()" class="create-post-form">
+  <!-- DEBUG INFO (temporal) -->
+  <div class="debug-info" style="background: #f0f0f0; padding: 0.5rem; margin-bottom: 1rem; font-size: 0.8rem;">
+    <div><strong>📝 DEBUG INFO:</strong></div>
+    <div>Content: "{{ postData.content || 'VACÍO' }}"</div>
+    <div>Content length: {{ (postData.content || '').length }}</div>
+    <div>Trimmed length: {{ (postData.content || '').trim().length }}</div>
+    <div>Can submit: {{ canSubmit() }}</div>
+    <div>Is submitting: {{ isSubmitting }}</div>
+    <div>Selected files: {{ selectedFiles.length }}</div>
+    <div>Post type: {{ postData.type }}</div>
+    <div>Input value: "{{ textareaValue || 'VACÍO' }}"</div>
+  </div>
+  
+  <form (ngSubmit)="onSubmit()" class="create-post-form" #postForm="ngForm">
     <div class="form-group">
-      <label for="title">Título</label>
-      <input 
-        type="text" 
-        id="title" 
-        name="title" 
-        [(ngModel)]="postData.title" 
-        placeholder="Título de tu publicación"
-        required
-      >
-    </div>
-    
-    <div class="form-group">
-      <label for="content">Contenido</label>
       <textarea 
+        #contentTextarea
         id="content" 
         name="content" 
         [(ngModel)]="postData.content" 
-        placeholder="¿Qué quieres compartir?"
-        rows="4"
+        #contentModel="ngModel"
+        placeholder="Comparte tu experiencia, conocimiento o pregunta..."
+        class="form-textarea"
+        rows="3"
         required
+        (input)="onContentChange($event)"
+        (keyup)="onContentChange($event)"
+        (paste)="onContentChange($event)"
+        (focus)="onContentChange($event)"
+        (blur)="onContentChange($event)"
       ></textarea>
-    </div>
-    
-    <div class="form-group">
-      <label for="postType">Tipo de publicación</label>
-      <select 
-        id="postType" 
-        name="postType" 
-        [(ngModel)]="postData.postType"
-      >
-        <option value="general">General</option>
-        <option value="financial">Financiero</option>
-        <option value="invoice">Factura</option>
-        <option value="question">Pregunta</option>
-        <option value="announcement">Anuncio</option>
-      </select>
+      
+      <!-- Contador de caracteres -->
+      <div class="character-counter">
+        {{ (postData.content || '').length }}/1500 caracteres
+      </div>
     </div>
 
+    <!-- File Upload Section -->
     <div class="form-group">
-      <label for="imageUrl">URL de imagen (opcional)</label>
-      <input 
-        type="url" 
-        id="imageUrl" 
-        name="imageUrl" 
-        [(ngModel)]="postData.imageUrl" 
-        placeholder="https://ejemplo.com/imagen.jpg"
-      />
+      <div class="file-upload-area">
+        <input 
+          type="file" 
+          #fileInput
+          multiple
+          accept="image/*,application/pdf,.doc,.docx,.txt"
+          (change)="onFilesSelected($event)"
+          class="file-input"
+          id="files"
+        >
+        
+        <div class="upload-zone" (click)="fileInput.click()" [class.dragover]="isDragOver">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>
+            <strong>Agregar archivos</strong>
+          </p>
+          <small>Imágenes, PDFs o documentos (máx. 5MB cada uno)</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- File Preview Section -->
+    <div *ngIf="selectedFiles.length > 0" class="file-preview-section">
+      <h4>📎 Archivos listos para subir ({{ selectedFiles.length }}):</h4>
+      <div class="file-preview-list">
+        <div *ngFor="let file of selectedFiles; let i = index" class="file-preview-item">
+          
+          <!-- Image Preview -->
+          <div *ngIf="file.type.startsWith('image/')" class="image-preview">
+            <div class="preview-status" [ngClass]="getFileStatus(file)">
+              <i *ngIf="getFileStatus(file) === 'ready'" class="fas fa-check-circle"></i>
+              <i *ngIf="getFileStatus(file) === 'loading'" class="fas fa-spinner fa-spin"></i>
+              <i *ngIf="getFileStatus(file) === 'error'" class="fas fa-exclamation-triangle"></i>
+            </div>
+            <img 
+              [src]="file.preview || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjQ0NDIi8+Cjwvc3ZnPgo='" 
+              [alt]="file.name" 
+              (error)="onImageError($event)"
+            />
+            <div class="file-info">
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">{{ formatFileSize(file.size) }}</span>
+            </div>
+            <button type="button" class="remove-file-btn" (click)="removeFile(i)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <!-- Document Preview -->
+          <div *ngIf="!file.type.startsWith('image/')" class="document-preview">
+            <div class="preview-status" [ngClass]="getFileStatus(file)">
+              <i *ngIf="getFileStatus(file) === 'ready'" class="fas fa-check-circle"></i>
+              <i *ngIf="getFileStatus(file) === 'loading'" class="fas fa-spinner fa-spin"></i>
+              <i *ngIf="getFileStatus(file) === 'error'" class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="document-icon">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="file-info">
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">{{ formatFileSize(file.size) }}</span>
+            </div>
+            <button type="button" class="remove-file-btn" (click)="removeFile(i)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Progress -->
+    <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="upload-progress">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+      </div>
+      <span class="progress-text">
+        <i class="fas fa-upload"></i>
+        Subiendo archivos... {{ uploadProgress }}% 
+        ({{ selectedFiles.length }} archivo{{ selectedFiles.length !== 1 ? 's' : '' }})
+      </span>
     </div>
     
     <!-- Error message -->
     <div *ngIf="error" class="error-message">
-      {{ error }}
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ error }}</span>
     </div>
     
+    <!-- Post Type Indicator -->
+    <div *ngIf="(postData.content || '').trim()" class="post-type-indicator">
+      <span class="type-badge" [class]="getPostTypeClass()">
+        <i [class]="getPostTypeIcon()"></i>
+        {{ getPostTypeLabel() }}
+      </span>
+    </div>
+
     <div class="form-actions">
       <button 
         type="submit" 
         class="submit-btn" 
-        [disabled]="isSubmitting || !postData.title.trim() || !postData.content.trim()"
+        [disabled]="!canSubmit()"
       >
+        <i *ngIf="isSubmitting" class="fas fa-spinner fa-spin"></i>
+        <i *ngIf="!isSubmitting" class="fas fa-paper-plane"></i>
         <span *ngIf="isSubmitting">Publicando...</span>
         <span *ngIf="!isSubmitting">Publicar</span>
       </button>
-      
     </div>
   </form>
 </div> 

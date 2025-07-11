@@ -1,100 +1,181 @@
 <div class="signup-container">
-  <h1>Crear Cuenta</h1>
-  
-  <!-- Success Message -->
-  <div *ngIf="successMessage" class="success-message">
-    {{ successMessage }}
-  </div>
-  
-  <!-- Error Message -->
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-  
-  <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
-    <div class="form-group">
-      <label for="firstName">Nombre *</label>
-      <input 
-        id="firstName" 
-        name="firstName" 
-        type="text" 
-        [(ngModel)]="signupData.firstName"
-        required>
+  <div class="signup-form">
+    <div class="signup-header">
+      <h1>Crear Cuenta</h1>
+      <p>Únete a la red profesional de Perú</p>
     </div>
-    
-    <div class="form-group">
-      <label for="lastName">Apellido *</label>
-      <input 
-        id="lastName" 
-        name="lastName" 
-        type="text" 
-        [(ngModel)]="signupData.lastName"
-        required>
-    </div>
-    
-    <div class="form-group">
-      <label for="email">Email *</label>
-      <input 
-        id="email" 
-        name="email" 
-        type="email" 
-        [(ngModel)]="signupData.email"
-        required>
-    </div>
-    
-    <div class="form-group">
-      <label for="phoneNumber">Número de teléfono</label>
-      <input 
-        id="phoneNumber" 
-        name="phoneNumber" 
-        type="tel" 
-        [(ngModel)]="signupData.phoneNumber"
-        placeholder="+52-555-123-4567">
-    </div>
-    
-    <div class="form-group">
-      <label for="roleId">Tipo de cuenta *</label>
-      <select 
-        id="roleId" 
-        name="roleId" 
-        [(ngModel)]="signupData.roleId"
-        required
-        [disabled]="isLoadingRoles">
-        <option value="">Selecciona un tipo de cuenta</option>
-        <option 
-          *ngFor="let role of roles" 
-          [value]="role._id">
-          {{ getRoleDisplayName(role.name) }}
-        </option>
-      </select>
-      <div *ngIf="isLoadingRoles" class="loading-hint">
-        Cargando tipos de cuenta...
+
+    <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
+      <!-- Basic Info -->
+      <div class="form-group">
+        <label for="name">Nombre Completo *</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="signupData.name"
+          required
+          class="form-control"
+          placeholder="Ingresa tu nombre completo">
       </div>
-    </div>
-    
-    <div class="form-group">
-      <label for="password">Password *</label>
-      <input 
-        id="password" 
-        name="password" 
-        type="password" 
-        [(ngModel)]="signupData.password"
-        required>
-        <div class="password-hint">
-          Mínimo 8 caracteres, incluir mayúsculas, minúsculas y números
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="signupData.email"
+          required
+          class="form-control"
+          placeholder="tu@email.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña *</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="signupData.password"
+          required
+          class="form-control"
+          placeholder="Mínimo 6 caracteres">
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Contraseña *</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          [(ngModel)]="signupData.confirmPassword"
+          required
+          class="form-control"
+          placeholder="Repite tu contraseña">
+      </div>
+
+      <div class="form-group">
+        <label for="phoneNumber">Teléfono</label>
+        <input
+          type="tel"
+          id="phoneNumber"
+          name="phoneNumber"
+          [(ngModel)]="signupData.phoneNumber"
+          class="form-control"
+          placeholder="+51 999 999 999">
+      </div>
+
+      <!-- Business Info Toggle -->
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="showBusinessInfo"
+            (change)="toggleBusinessInfo()"
+            name="isBusinessAccount">
+          ¿Cuenta empresarial?
+        </label>
+      </div>
+
+      <!-- Business Info Section -->
+      <div *ngIf="showBusinessInfo" class="business-info-section">
+        <h3>Información Empresarial</h3>
+        
+        <div class="form-group">
+          <label for="companyName">Nombre de la Empresa *</label>
+          <input
+            type="text"
+            id="companyName"
+            name="companyName"
+            [(ngModel)]="signupData.businessInfo!.companyName"
+            class="form-control"
+            placeholder="Nombre de tu empresa">
         </div>
-    </div>
-    
-    <button 
-      class="signup-btn" 
-      type="submit" 
-      [disabled]="isLoading || isLoadingRoles">
-      <span *ngIf="!isLoading">Crear Cuenta</span>
-      <span *ngIf="isLoading">Creando cuenta...</span>
-    </button>
-    
-    <div class="login-link">
-      Ya tienes cuenta? <a routerLink="/login">Iniciar Sesion</a>
-    </div>
-  </form>
+
+        <div class="form-group">
+          <label for="ruc">RUC</label>
+          <input
+            type="text"
+            id="ruc"
+            name="ruc"
+            [(ngModel)]="signupData.businessInfo!.ruc"
+            class="form-control"
+            placeholder="20123456789">
+        </div>
+
+        <div class="form-group">
+          <label for="sector">Sector *</label>
+          <select
+            id="sector"
+            name="sector"
+            [(ngModel)]="signupData.businessInfo!.sector"
+            class="form-control">
+            <option value="">Selecciona un sector</option>
+            <option value="tecnologia">Tecnología</option>
+            <option value="finanzas">Finanzas</option>
+            <option value="salud">Salud</option>
+            <option value="educacion">Educación</option>
+            <option value="retail">Retail</option>
+            <option value="manufactura">Manufactura</option>
+            <option value="servicios">Servicios</option>
+            <option value="construccion">Construcción</option>
+            <option value="transporte">Transporte</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="companySize">Tamaño de Empresa</label>
+          <select
+            id="companySize"
+            name="companySize"
+            [(ngModel)]="signupData.businessInfo!.size"
+            class="form-control">
+            <option value="startup">Startup (1-10 empleados)</option>
+            <option value="small">Pequeña (11-50 empleados)</option>
+            <option value="medium">Mediana (51-250 empleados)</option>
+            <option value="large">Grande (251-1000 empleados)</option>
+            <option value="enterprise">Corporación (1000+ empleados)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Terms and Conditions -->
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="signupData.acceptTerms"
+            name="acceptTerms"
+            required>
+          Acepto los <a href="/terms" target="_blank">términos y condiciones</a> *
+        </label>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="signup-btn"
+        [disabled]="isLoading || !signupForm.valid">
+        <span *ngIf="isLoading" class="spinner"></span>
+        {{ isLoading ? 'Creando cuenta...' : 'Crear Cuenta' }}
+      </button>
+
+      <!-- Login Link -->
+      <div class="login-link">
+        ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a>
+      </div>
+    </form>
+  </div>
 </div>

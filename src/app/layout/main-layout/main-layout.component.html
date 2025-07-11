@@ -1,0 +1,18 @@
+<div class="layout-container">
+  <!-- Header (only when authenticated) -->
+  <app-header *ngIf="isAuthenticated"></app-header>
+
+  <!-- Main Content Area -->
+  <div class="main-wrapper" [class.authenticated]="isAuthenticated">
+    <!-- Sidebar (only when authenticated) -->
+    <app-sidebar 
+      *ngIf="isAuthenticated"
+      (sidebarToggle)="onSidebarToggle($event)">
+    </app-sidebar>
+
+    <!-- Main Content -->
+    <main class="main-content" [class.sidebar-collapsed]="isSidebarCollapsed">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div> 

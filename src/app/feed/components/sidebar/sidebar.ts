@@ -1,4 +1,5 @@
 import { Component, Output, EventEmitter } from '@angular/core';
+import { FeedType } from '../../../core/models/post.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -7,11 +8,11 @@ import { Component, Output, EventEmitter } from '@angular/core';
   styleUrl: './sidebar.scss'
 })
 export class Sidebar {
-  selectedFilter: string = 'inicio';
+  selectedFilter: FeedType['type'] = 'following';
   
-  @Output() filterChanged = new EventEmitter<string>();
+  @Output() filterChanged = new EventEmitter<FeedType['type']>();
 
-  selectFilter(filter: string) {
+  selectFilter(filter: FeedType['type']) {
     this.selectedFilter = filter;
     this.filterChanged.emit(filter);
   }

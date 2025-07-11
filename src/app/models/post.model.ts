@@ -24,6 +24,7 @@ export interface Post {
   authorId: Author | string;
   content: string;
   postType: 'text' | 'invoice' | 'experience' | 'general' | 'financial' | 'question' | 'announcement';
+  type: 'text' | 'image' | 'video' | 'link' | 'poll' | 'event' | 'job' | 'invoice' | 'experience';
   invoiceId?: string;
   images: string[];
   imageUrls?: string[];
@@ -39,4 +40,15 @@ export interface Post {
 export interface PostResponse {
   success: boolean;
   data: Post[];
+}
+
+export interface CreatePostRequest {
+  content: string;
+  type: Post['type'];
+  postType?: Post['postType'];
+  title?: string;
+  media?: File[];
+  category?: string;
+  tags?: string[];
+  isPublic?: boolean;
 } 

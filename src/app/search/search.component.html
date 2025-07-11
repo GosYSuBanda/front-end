@@ -1,0 +1,416 @@
+<div class="search-container">
+  <!-- Search Header -->
+  <div class="search-header">
+    <div class="search-main">
+      <div class="search-input-container">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+          (keydown.enter)="onSearchSubmit()"
+          placeholder="Buscar usuarios, posts, empresas..."
+          class="search-input">
+        <button
+          type="button"
+          (click)="onSearchSubmit()"
+          [disabled]="!searchQuery.trim()"
+          class="search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+
+        <!-- Search Suggestions -->
+        <div *ngIf="showSuggestions && suggestions.length > 0" class="search-suggestions">
+          <div
+            *ngFor="let suggestion of suggestions"
+            (click)="selectSuggestion(suggestion)"
+            class="suggestion-item">
+            <div class="suggestion-content">
+              <app-avatar
+                *ngIf="suggestion.type === 'user'"
+                [user]="suggestion"
+                [size]="'xs'">
+              </app-avatar>
+              <i
+                *ngIf="suggestion.type === 'post'"
+                class="fas fa-file-alt suggestion-icon">
+              </i>
+              <i
+                *ngIf="suggestion.type === 'search'"
+                class="fas fa-search suggestion-icon">
+              </i>
+              <div class="suggestion-text">
+                <span class="suggestion-title">{{ suggestion.name || suggestion.query }}</span>
+                <span *ngIf="suggestion.type === 'user'" class="suggestion-subtitle">
+                  {{ suggestion.email }}
+                </span>
+                <span *ngIf="suggestion.type === 'post'" class="suggestion-subtitle">
+                  Post • {{ suggestion.createdAt | timeAgo }}
+                </span>
+              </div>
+            </div>
+            <span class="suggestion-type">
+              {{ suggestion.type === 'user' ? 'Usuario' : 
+                 suggestion.type === 'post' ? 'Post' : 'Búsqueda' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Search History -->
+        <div *ngIf="showHistory" class="search-history">
+          <div class="history-header">
+            <h4>Búsquedas recientes</h4>
+            <button 
+              *ngIf="searchHistory.length > 0"
+              type="button"
+              (click)="clearSearchHistory()"
+              class="clear-history-btn">
+              Limpiar
+            </button>
+          </div>
+          
+          <div *ngIf="searchHistory.length === 0" class="no-history">
+            <p>No hay búsquedas recientes</p>
+          </div>
+
+          <div *ngFor="let query of searchHistory" class="history-item">
+            <button
+              type="button"
+              (click)="selectHistoryItem(query)"
+              class="history-query">
+              <i class="fas fa-history"></i>
+              <span>{{ query }}</span>
+            </button>
+            <button
+              type="button"
+              (click)="removeFromHistory(query)"
+              class="remove-history-btn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div *ngIf="trendingSearches.length > 0" class="trending-section">
+            <h4>Tendencias</h4>
+            <div class="trending-searches">
+              <button
+                *ngFor="let trending of trendingSearches"
+                type="button"
+                (click)="selectTrendingSearch(trending)"
+                class="trending-item">
+                <i class="fas fa-fire"></i>
+                <span>{{ trending }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Filters -->
+    <div class="search-filters">
+      <div class="filter-group">
+        <label for="searchType">Tipo:</label>
+        <select
+          id="searchType"
+          [(ngModel)]="filters.type"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="all">Todos</option>
+          <option value="users">Usuarios</option>
+          <option value="posts">Posts</option>
+          <option value="companies">Empresas</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sortBy">Ordenar por:</label>
+        <select
+          id="sortBy"
+          [(ngModel)]="filters.sortBy"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="relevance">Relevancia</option>
+          <option value="newest">Más recientes</option>
+          <option value="oldest">Más antiguos</option>
+          <option value="popular">Populares</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="dateRange">Fecha:</label>
+        <select
+          id="dateRange"
+          [(ngModel)]="filters.dateRange"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="all">Todo el tiempo</option>
+          <option value="today">Hoy</option>
+          <option value="week">Esta semana</option>
+          <option value="month">Este mes</option>
+          <option value="year">Este año</option>
+        </select>
+      </div>
+
+      <div *ngIf="filters.type === 'users' || filters.type === 'all'" class="filter-group">
+        <label for="location">Ubicación:</label>
+        <input
+          id="location"
+          type="text"
+          [(ngModel)]="filters.location"
+          (input)="onFilterChange()"
+          placeholder="Ciudad, país..."
+          class="filter-input">
+      </div>
+
+      <div *ngIf="filters.type === 'users' || filters.type === 'all'" class="filter-group">
+        <label for="industry">Industria:</label>
+        <select
+          id="industry"
+          [(ngModel)]="filters.industry"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="">Todas</option>
+          <option *ngFor="let industry of industries" [value]="industry">
+            {{ industry }}
+          </option>
+        </select>
+      </div>
+
+      <div *ngIf="filters.type === 'posts' || filters.type === 'all'" class="filter-group">
+        <label for="postType">Tipo de post:</label>
+        <select
+          id="postType"
+          [(ngModel)]="filters.postType"
+          (change)="onFilterChange()"
+          class="filter-select">
+          <option value="">Todos</option>
+          <option *ngFor="let type of postTypes" [value]="type.value">
+            {{ type.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="filters.verified"
+            (change)="onFilterChange()">
+          <span>Solo cuentas verificadas</span>
+        </label>
+      </div>
+
+      <button
+        type="button"
+        (click)="clearFilters()"
+        class="clear-filters-btn">
+        <i class="fas fa-times"></i>
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <div class="search-results">
+    <!-- Loading State -->
+    <div *ngIf="isLoading && !searchResults" class="loading-container">
+      <app-loading-spinner 
+        [size]="'large'" 
+        [message]="'Buscando...'">
+      </app-loading-spinner>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error-container">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h3>Error en la búsqueda</h3>
+      <p>{{ error }}</p>
+      <button
+        type="button"
+        (click)="performSearch()"
+        class="retry-btn">
+        Intentar nuevamente
+      </button>
+    </div>
+
+    <!-- Results Header -->
+    <div *ngIf="searchResults && !isLoading" class="results-header">
+      <h2>
+        {{ getFilteredResultsText() }} para "{{ searchQuery }}"
+      </h2>
+      <div class="results-meta">
+        <span class="results-count">{{ getResultsCount() }} resultados</span>
+        <span class="search-time">{{ 'Búsqueda completada' }}</span>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div *ngIf="searchResults && getResultsCount() === 0 && !isLoading" class="no-results">
+      <i class="fas fa-search fa-3x"></i>
+      <h3>No se encontraron resultados</h3>
+      <p>Intenta con otros términos de búsqueda o ajusta los filtros</p>
+      <div class="search-suggestions-alt">
+        <h4>Sugerencias:</h4>
+        <ul>
+          <li>Verifica la ortografía de las palabras</li>
+          <li>Usa términos más generales</li>
+          <li>Prueba con diferentes palabras clave</li>
+          <li>Reduce la cantidad de filtros aplicados</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Results Content -->
+    <div *ngIf="searchResults && getResultsCount() > 0" class="results-content">
+      <!-- Users Results -->
+      <div *ngIf="searchResults.users.length > 0 && (filters.type === 'all' || filters.type === 'users')" class="users-section">
+        <h3 class="section-title">
+          <i class="fas fa-users"></i>
+          Usuarios ({{ searchResults.totalUsers }})
+        </h3>
+        <div class="users-grid">
+          <div
+            *ngFor="let user of searchResults.users"
+            class="user-card">
+            <div class="user-header">
+              <app-avatar
+                [user]="user"
+                [size]="'lg'"
+                [showBadge]="true"
+                (click)="navigateToProfile(user._id)">
+              </app-avatar>
+              <div class="user-info">
+                <h4 (click)="navigateToProfile(user._id)">
+                  {{ user.name }}
+                  <i *ngIf="user.isVerified" class="fas fa-check-circle verified-icon"></i>
+                </h4>
+                <p class="user-email">{{ user.email }}</p>
+                <p *ngIf="user.bio" class="user-bio">{{ user.bio }}</p>
+                <div class="user-meta">
+                  <span *ngIf="user.location" class="meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    {{ user.location }}
+                  </span>
+                  <span *ngIf="user.businessInfo?.industry" class="meta-item">
+                    <i class="fas fa-industry"></i>
+                    {{ user.businessInfo?.industry }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="user-stats">
+              <div class="stat">
+                <span class="stat-value">{{ user.followers }}</span>
+                <span class="stat-label">Seguidores</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ user.following }}</span>
+                <span class="stat-label">Siguiendo</span>
+              </div>
+            </div>
+            <div class="user-actions">
+              <button
+                type="button"
+                (click)="navigateToProfile(user._id)"
+                class="btn btn-outline">
+                Ver perfil
+              </button>
+              <button
+                type="button"
+                (click)="followUser(user._id)"
+                class="btn btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Seguir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Posts Results -->
+      <div *ngIf="searchResults.posts.length > 0 && (filters.type === 'all' || filters.type === 'posts')" class="posts-section">
+        <h3 class="section-title">
+          <i class="fas fa-file-alt"></i>
+          Posts ({{ searchResults.totalPosts }})
+        </h3>
+        <div class="posts-grid">
+          <div
+            *ngFor="let post of searchResults.posts"
+            class="post-card">
+            <div class="post-header">
+              <app-avatar
+                [user]="post.author"
+                [size]="'sm'"
+                (click)="navigateToProfile(post.author._id)">
+              </app-avatar>
+              <div class="post-author-info">
+                <h4 (click)="navigateToProfile(post.author._id)">
+                  {{ post.author.name }}
+                  <i *ngIf="post.author.isVerified" class="fas fa-check-circle verified-icon"></i>
+                </h4>
+                <span class="post-date">{{ post.createdAt | timeAgo }}</span>
+              </div>
+              <div class="post-type">
+                <span class="type-badge" [class]="'type-' + post.type">
+                  {{ post.type }}
+                </span>
+              </div>
+            </div>
+            <div class="post-content" (click)="navigateToPost(post._id)">
+              <p>{{ post.content }}</p>
+              <div *ngIf="post.media && post.media.length > 0" class="post-media">
+                <img
+                  *ngFor="let media of post.media.slice(0, 3)"
+                  [src]="media.url"
+                  [alt]="media.filename"
+                  class="media-thumbnail">
+                <div *ngIf="post.media.length > 3" class="media-more">
+                  +{{ post.media.length - 3 }} más
+                </div>
+              </div>
+            </div>
+            <div class="post-footer">
+              <div class="post-stats">
+                <span class="stat">
+                  <i class="fas fa-heart"></i>
+                  {{ post.reactions.length }}
+                </span>
+                <span class="stat">
+                  <i class="fas fa-comment"></i>
+                  {{ post.comments.length }}
+                </span>
+                <span class="stat">
+                  <i class="fas fa-share"></i>
+                  {{ post.shares.length }}
+                </span>
+              </div>
+              <button
+                type="button"
+                (click)="navigateToPost(post._id)"
+                class="view-post-btn">
+                Ver post
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Load More Button -->
+      <div *ngIf="hasMore" class="load-more-container">
+        <button
+          type="button"
+          (click)="loadMore()"
+          [disabled]="isLoading"
+          class="load-more-btn">
+          <app-loading-spinner
+            *ngIf="isLoading"
+            [size]="'small'"
+            [color]="'white'">
+          </app-loading-spinner>
+          <span *ngIf="!isLoading">Cargar más resultados</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

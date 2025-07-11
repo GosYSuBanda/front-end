@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService, SignupRequest } from '../../services/auth.service';
-import { RoleService, Role } from '../../services/role.service';
+import { AuthService } from '../../core/services/auth.service';
+import { RegisterRequest } from '../../core/models/auth.model';
 
 @Component({
   selector: 'app-signup',
@@ -12,70 +12,73 @@ import { RoleService, Role } from '../../services/role.service';
   styleUrl: './signup.scss'
 })
 export class Signup implements OnInit {
-  signupData: SignupRequest = {
-    firstName: '',
-    lastName: '',
+  signupData: RegisterRequest = {
+    name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phoneNumber: '',
-    roleId: ''
+    acceptTerms: false,
+    businessInfo: {
+      companyName: '',
+      ruc: '',
+      sector: '',
+      size: 'small'
+    }
   };
 
-  roles: Role[] = [];
   isLoading = false;
-  isLoadingRoles = false;
   errorMessage = '';
   successMessage = '';
+  showBusinessInfo = false;
 
   constructor(
     private authService: AuthService,
-    private roleService: RoleService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    this.loadRoles();
+    // No need to load roles - they're handled by backend
   }
 
-  loadRoles() {
-    this.isLoadingRoles = true;
-    this.roleService.getRoles().subscribe({
-      next: (response) => {
-        this.roles = response.data;
-        this.isLoadingRoles = false;
-        
-        // Set default role to 'user' if available
-        const defaultRole = this.roles.find(role => role.name === 'user');
-        if (defaultRole) {
-          this.signupData.roleId = defaultRole._id;
-        }
-      },
-      error: (error) => {
-        console.error('Error loading roles:', error);
-        this.isLoadingRoles = false;
-        this.errorMessage = 'Error al cargar los roles. Por favor recarga la página.';
-      }
-    });
+  toggleBusinessInfo(): void {
+    this.showBusinessInfo = !this.showBusinessInfo;
+    if (!this.showBusinessInfo) {
+      // Clear business info if toggled off
+      this.signupData.businessInfo = undefined;
+    } else {
+      this.signupData.businessInfo = {
+        companyName: '',
+        ruc: '',
+        sector: '',
+        size: 'small'
+      };
+    }
   }
 
-  getRoleDisplayName(roleName: string): string {
-    const roleDisplayNames: { [key: string]: string } = {
-      'admin': 'Administrador',
-      'moderator': 'Moderador',
-      'user': 'Usuario'
-    };
-    return roleDisplayNames[roleName] || roleName;
-  }
-
-  onSubmit() {
+  onSubmit(): void {
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
 
     // Validate required fields
-    if (!this.signupData.firstName || !this.signupData.lastName || 
-        !this.signupData.email || !this.signupData.password || !this.signupData.roleId) {
+    if (!this.signupData.name || !this.signupData.email || 
+        !this.signupData.password || !this.signupData.confirmPassword) {
       this.errorMessage = 'Por favor completa todos los campos requeridos';
+      this.isLoading = false;
+      return;
+    }
+
+    // Validate password confirmation
+    if (this.signupData.password !== this.signupData.confirmPassword) {
+      this.errorMessage = 'Las contraseñas no coinciden';
+      this.isLoading = false;
+      return;
+    }
+
+    // Validate terms acceptance
+    if (!this.signupData.acceptTerms) {
+      this.errorMessage = 'Debes aceptar los términos y condiciones';
       this.isLoading = false;
       return;
     }
@@ -96,10 +99,19 @@ export class Signup implements OnInit {
       return;
     }
 
-    console.log(this.signupData);
+    // Validate business info if provided
+    if (this.showBusinessInfo && this.signupData.businessInfo) {
+      if (!this.signupData.businessInfo.companyName || !this.signupData.businessInfo.sector) {
+        this.errorMessage = 'Por favor completa la información empresarial';
+        this.isLoading = false;
+        return;
+      }
+    }
 
-    this.authService.signup(this.signupData).subscribe({
-      next: (response) => {
+    console.log('Signup data:', this.signupData);
+
+    this.authService.register(this.signupData).subscribe({
+      next: (response: any) => {
         this.successMessage = 'Cuenta creada exitosamente';
         this.isLoading = false;
         
@@ -108,7 +120,7 @@ export class Signup implements OnInit {
           this.router.navigate(['/login']);
         }, 2000);
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isLoading = false;
         if (error.error && error.error.message) {
           this.errorMessage = error.error.message;

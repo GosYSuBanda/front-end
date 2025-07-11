@@ -1,0 +1,830 @@
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+
+  .loading-container,
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+  }
+
+  .error-container {
+    color: #666;
+
+    i {
+      font-size: 3rem;
+      color: #dc3545;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+    }
+
+    p {
+      margin: 0 0 1.5rem 0;
+    }
+
+    .retry-btn {
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: #0056b3;
+      }
+    }
+  }
+
+  .profile-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .profile-header {
+    position: relative;
+
+    .profile-cover {
+      height: 200px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+      .cover-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      @media (max-width: 768px) {
+        height: 150px;
+      }
+    }
+
+    .profile-info {
+      padding: 2rem;
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.5rem 1rem;
+      }
+
+      .profile-avatar {
+        margin-top: -80px;
+        border: 4px solid white;
+        border-radius: 50%;
+        background: white;
+
+        @media (max-width: 768px) {
+          margin-top: -60px;
+        }
+      }
+
+      .profile-details {
+        flex: 1;
+        min-width: 0;
+
+        .profile-name {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+
+          @media (max-width: 768px) {
+            justify-content: center;
+          }
+
+          h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+
+            @media (max-width: 768px) {
+              font-size: 1.5rem;
+            }
+          }
+
+          .verified-icon {
+            color: #007bff;
+            font-size: 1.2rem;
+          }
+        }
+
+        .profile-bio {
+          margin: 0 0 1rem 0;
+          color: #666;
+          font-size: 1.1rem;
+          line-height: 1.5;
+
+          @media (max-width: 768px) {
+            font-size: 1rem;
+          }
+        }
+
+        .profile-meta {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+          flex-wrap: wrap;
+
+          @media (max-width: 768px) {
+            justify-content: center;
+          }
+
+          .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+
+            i {
+              color: #999;
+            }
+
+            a {
+              color: #007bff;
+              text-decoration: none;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+
+        .profile-stats {
+          display: flex;
+          gap: 2rem;
+
+          @media (max-width: 768px) {
+            justify-content: center;
+          }
+
+          .stat-item {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+
+            &:hover {
+              transform: translateY(-2px);
+            }
+
+            .stat-value {
+              display: block;
+              font-size: 1.5rem;
+              font-weight: 600;
+              color: #333;
+            }
+
+            .stat-label {
+              display: block;
+              font-size: 0.9rem;
+              color: #666;
+            }
+          }
+        }
+      }
+
+      .profile-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+
+        @media (max-width: 768px) {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .own-profile-actions,
+        .other-profile-actions {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+
+          @media (max-width: 768px) {
+            flex-direction: column;
+            width: 100%;
+          }
+        }
+
+        .more-actions {
+          position: relative;
+
+          .more-btn {
+            background: none;
+            border: 1px solid #e0e0e0;
+            color: #666;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+              background: #f8f9fa;
+              border-color: #007bff;
+            }
+          }
+
+          .more-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            z-index: 10;
+            display: none;
+
+            button {
+              width: 100%;
+              padding: 0.75rem 1rem;
+              background: none;
+              border: none;
+              text-align: left;
+              cursor: pointer;
+              transition: background-color 0.3s ease;
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+
+              &:hover {
+                background: #f8f9fa;
+              }
+
+              &:first-child {
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+              }
+
+              &:last-child {
+                border-bottom-left-radius: 6px;
+                border-bottom-right-radius: 6px;
+              }
+            }
+          }
+
+          &:hover .more-menu {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  .business-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+
+    .business-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+
+      i {
+        color: #007bff;
+        font-size: 1.2rem;
+      }
+
+      h3 {
+        margin: 0;
+        color: #333;
+      }
+    }
+
+    .business-details {
+      display: grid;
+      gap: 0.75rem;
+
+      .business-item {
+        color: #666;
+        font-size: 0.9rem;
+
+        strong {
+          color: #333;
+        }
+      }
+    }
+  }
+
+  .profile-tabs {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid #e0e0e0;
+      background: #f8f9fa;
+
+      .tab-btn {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: #666;
+
+        &.active {
+          background: white;
+          color: #007bff;
+          border-bottom: 2px solid #007bff;
+        }
+
+        &:hover:not(.active) {
+          background: #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+          padding: 0.75rem 1rem;
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .tab-content {
+      padding: 2rem;
+
+      @media (max-width: 768px) {
+        padding: 1.5rem 1rem;
+      }
+    }
+  }
+
+  // Posts Tab
+  .posts-tab {
+    .loading-posts {
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .no-posts {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      text-align: center;
+      color: #666;
+
+      i {
+        color: #ccc;
+        margin-bottom: 1rem;
+      }
+
+      h3 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+    }
+
+    .posts-grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+
+      @media (min-width: 768px) {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+
+      .post-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+
+        .post-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+
+          .post-info {
+            h4 {
+              margin: 0 0 0.25rem 0;
+              font-size: 0.9rem;
+              color: #333;
+            }
+
+            .post-date {
+              font-size: 0.8rem;
+              color: #666;
+            }
+          }
+        }
+
+        .post-content {
+          margin-bottom: 1rem;
+
+          p {
+            margin: 0 0 1rem 0;
+            color: #333;
+            line-height: 1.5;
+          }
+
+          .post-media {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+
+            .media-thumbnail {
+              width: 60px;
+              height: 60px;
+              border-radius: 6px;
+              object-fit: cover;
+            }
+          }
+        }
+
+        .post-stats {
+          display: flex;
+          gap: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid #e0e0e0;
+
+          .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.85rem;
+
+            i {
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+
+    .load-more {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  // About Tab
+  .about-tab {
+    .about-section {
+      margin-bottom: 2rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #333;
+        font-size: 1.1rem;
+      }
+
+      .info-grid {
+        display: grid;
+        gap: 1rem;
+
+        @media (min-width: 768px) {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .info-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: #666;
+
+          i {
+            color: #999;
+            width: 20px;
+            text-align: center;
+          }
+
+          a {
+            color: #007bff;
+            text-decoration: none;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+
+      .profile-completeness {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .progress-bar {
+          flex: 1;
+          height: 8px;
+          background: #e0e0e0;
+          border-radius: 4px;
+          overflow: hidden;
+
+          .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            transition: width 0.3s ease;
+          }
+        }
+
+        .progress-text {
+          font-size: 0.9rem;
+          color: #666;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  // Metrics Tab
+  .metrics-tab {
+    .loading-metrics {
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+      .metric-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+
+        .metric-icon {
+          margin-bottom: 1rem;
+
+          i {
+            font-size: 2rem;
+            color: #007bff;
+          }
+        }
+
+        .metric-content {
+          h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+          }
+
+          p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+  }
+
+  // Connections Tab
+  .connections-tab {
+    .connections-summary {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+
+      .connection-stat {
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #e9ecef;
+          transform: translateY(-2px);
+        }
+
+        h3 {
+          margin: 0 0 0.5rem 0;
+          font-size: 2rem;
+          color: #007bff;
+        }
+
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+// Edit Profile Modal
+.edit-profile-form {
+  .form-sections {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 1rem;
+
+    .form-section {
+      margin-bottom: 2rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      h4 {
+        margin: 0 0 1rem 0;
+        color: #333;
+        font-size: 1.1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+
+          &.full-width {
+            grid-column: 1 / -1;
+          }
+
+          label {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+          }
+
+          .form-input,
+          .form-textarea,
+          .form-select {
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+
+            &:focus {
+              outline: none;
+              border-color: #007bff;
+            }
+          }
+
+          .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+          }
+        }
+      }
+
+      .form-checkboxes {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+
+        .checkbox-group {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #007bff;
+          }
+
+          label {
+            font-size: 0.9rem;
+            color: #333;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+// Connections List
+.connections-list {
+  max-height: 400px;
+  overflow-y: auto;
+
+  .connection-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: #f8f9fa;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .connection-info {
+      flex: 1;
+
+      h4 {
+        margin: 0 0 0.25rem 0;
+        color: #333;
+        font-size: 0.9rem;
+      }
+
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 0 0.5rem;
+
+    .profile-header .profile-info {
+      gap: 1rem;
+    }
+
+    .profile-tabs .tab-content {
+      padding: 1rem;
+    }
+
+    .posts-tab .posts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .metrics-tab .metrics-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .connections-tab .connections-summary {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+} 
