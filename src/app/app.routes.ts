@@ -32,6 +32,11 @@ export const routes: Routes = [
         title: 'Feed - FinSmart Network'
       },
       {
+        path: 'profile',
+        loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent),
+        title: 'Mi Perfil - FinSmart Network'
+      },
+      {
         path: 'profile/:id',
         loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent),
         title: 'Perfil - FinSmart Network'

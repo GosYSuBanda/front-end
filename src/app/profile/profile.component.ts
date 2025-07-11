@@ -5,7 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { UserService } from '../core/services/user.service';
-// import { PostService } from '../core/services/post.service';
+import { PostService } from '../core/services/post.service';
 import { AuthService } from '../core/services/auth.service';
 import { User, UserMetrics, DisplayUser } from '../core/models/user.model';
 import { AuthUser } from '../core/models/auth.model';
@@ -89,6 +89,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   constructor(
     private userService: UserService,
+    private postService: PostService,
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
@@ -98,15 +99,63 @@ export class ProfileComponent implements OnInit, OnDestroy {
     // Subscribe to current user
     this.authService.user$.pipe(takeUntil(this.subscriptions)).subscribe(user => {
       this.currentUser = user;
+      console.log('🔍 Current user updated:', this.currentUser);
+      
+      // If no route params but user is authenticated, load own profile
+      this.route.params.pipe(takeUntil(this.subscriptions)).subscribe(params => {
+        const userId = params['id'];
+        console.log('🔍 Route params:', params, 'userId:', userId);
+        
+        if (userId) {
+          this.loadProfile(userId);
+        } else if (this.currentUser && this.currentUser._id) {
+          // Load own profile if no ID provided
+          console.log('🔍 Loading own profile for user:', this.currentUser._id);
+          this.loadProfile(this.currentUser._id);
+        }
+      });
     });
+  }
 
-    // Get user ID from route
-    this.route.params.pipe(takeUntil(this.subscriptions)).subscribe(params => {
-      const userId = params['id'];
-      if (userId) {
-        this.loadProfile(userId);
-      }
-    });
+  /**
+   * Reload entire profile data
+   */
+  reloadProfile(): void {
+    if (this.profileUser) {
+      this.loadProfile(this.profileUser._id);
+    } else if (this.currentUser) {
+      this.loadProfile(this.currentUser._id);
+    }
+  }
+
+  /**
+   * Show debug information in console
+   */
+  showDebugInfo(): void {
+    console.log('🔍 DEBUG INFO:');
+    console.log('Current User:', this.currentUser);
+    console.log('Profile User:', this.profileUser);
+    console.log('User Posts:', this.userPosts);
+    console.log('User Metrics:', this.userMetrics);
+    console.log('Is Own Profile:', this.isOwnProfile);
+    console.log('Is Loading:', this.isLoading);
+    console.log('Is Loading Posts:', this.isLoadingPosts);
+    console.log('Error:', this.error);
+    console.log('Current Page:', this.currentPage);
+    console.log('Has More Posts:', this.hasMorePosts);
+    console.log('Route Params:', this.route.snapshot.params);
+    console.log('API Token:', localStorage.getItem('finsmart_access_token') ? 'Present' : 'Missing');
+  }
+
+  /**
+   * Refresh posts only
+   */
+  refreshPosts(): void {
+    if (this.profileUser) {
+      this.loadUserPosts(this.profileUser._id, true);
+    } else if (this.currentUser) {
+      this.loadUserPosts(this.currentUser._id, true);
+    }
   }
 
   ngOnDestroy(): void {
@@ -144,12 +193,57 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadUserPosts(userId: string): void {
+  loadUserPosts(userId: string, reset: boolean = true): void {
     this.isLoadingPosts = true;
-    // TODO: Implementar cuando PostService tenga getPostsByUser
-    this.userPosts = [];
-    this.hasMorePosts = false;
-    this.isLoadingPosts = false;
+    
+    // Reset pagination and posts array if starting fresh
+    if (reset) {
+      this.userPosts = [];
+      this.currentPage = 1;
+      this.hasMorePosts = true;
+    }
+
+    console.log('🔍 Loading posts for user:', userId, 'page:', this.currentPage);
+
+    this.postService.getPostsByUser(userId, this.currentPage, this.pageSize).pipe(takeUntil(this.subscriptions)).subscribe({
+      next: (response: any) => {
+        console.log('📥 Posts API response:', response);
+        
+        // Handle different response formats
+        let posts: any[] = [];
+        let hasMore = false;
+        
+        if (response) {
+          // If response is array (direct data)
+          if (Array.isArray(response)) {
+            posts = response;
+            hasMore = response.length === this.pageSize;
+          }
+          // If response has data property
+          else if (response.data) {
+            posts = Array.isArray(response.data) ? response.data : [];
+            hasMore = response.pagination?.hasMore || response.hasMore || (posts.length === this.pageSize);
+          }
+          // If response has posts property
+          else if (response.posts) {
+            posts = Array.isArray(response.posts) ? response.posts : [];
+            hasMore = response.pagination?.hasMore || response.hasMore || (posts.length === this.pageSize);
+          }
+        }
+        
+        console.log('📋 Processed posts:', posts.length, 'hasMore:', hasMore);
+        
+        this.userPosts = [...this.userPosts, ...posts];
+        this.hasMorePosts = hasMore;
+        this.currentPage++;
+        this.isLoadingPosts = false;
+      },
+      error: (error: any) => {
+        console.error('❌ Error loading posts:', error);
+        this.error = `Error al cargar los posts: ${error.message || error}`;
+        this.isLoadingPosts = false;
+      }
+    });
   }
 
   loadUserMetrics(userId: string): void {
@@ -214,8 +308,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   loadMorePosts(): void {
     if (!this.hasMorePosts || this.isLoadingPosts || !this.profileUser) return;
 
-    this.currentPage++;
-    this.loadUserPosts(this.profileUser._id);
+    this.loadUserPosts(this.profileUser._id, false); // Don't reset when loading more
   }
 
   setActiveTab(tab: string): void {

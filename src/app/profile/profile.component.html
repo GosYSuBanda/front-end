@@ -10,12 +10,22 @@
       <i class="fas fa-exclamation-circle"></i>
       <h3>Error al cargar el perfil</h3>
       <p>{{ error }}</p>
-      <button 
-        type="button" 
-        class="retry-button"
-        (click)="loadProfile(profileUser?._id || currentUser?._id || '')">
-        Intentar de nuevo
-      </button>
+      <div class="error-actions">
+        <button 
+          type="button" 
+          class="retry-button"
+          (click)="reloadProfile()">
+          <i class="fas fa-sync-alt"></i>
+          Intentar de nuevo
+        </button>
+        <button 
+          type="button" 
+          class="debug-button"
+          (click)="showDebugInfo()">
+          <i class="fas fa-bug"></i>
+          Debug Info
+        </button>
+      </div>
     </div>
   </div>
 
@@ -162,7 +172,20 @@
         <div class="tab-pane" [class.active]="activeTab === 'posts'">
           <!-- Posts Tab -->
           <div *ngIf="activeTab === 'posts'" class="posts-tab">
-            <div *ngIf="isLoadingPosts" class="loading-posts">
+            <div class="posts-header">
+              <h3>Publicaciones</h3>
+              <button 
+                type="button" 
+                class="refresh-button"
+                (click)="refreshPosts()"
+                [disabled]="isLoadingPosts"
+                title="Actualizar publicaciones">
+                <i class="fas fa-sync-alt" [class.spinning]="isLoadingPosts"></i>
+                Actualizar
+              </button>
+            </div>
+            
+            <div *ngIf="isLoadingPosts && userPosts.length === 0" class="loading-posts">
               <app-loading-spinner [size]="'medium'" [message]="'Cargando posts...'"></app-loading-spinner>
             </div>
 

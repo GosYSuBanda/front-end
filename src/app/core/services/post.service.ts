@@ -119,6 +119,16 @@ export class PostService {
       );
   }
 
+  /**
+   * Get posts by user ID
+   */
+  getPostsByUser(userId: string, page = 1, limit = 10): Observable<PaginatedResponse<Post>> {
+    const params = { authorId: userId, page, limit };
+    
+    return this.apiService.getPaginated<Post>('/posts', params)
+      .pipe(shareReplay(1));
+  }
+
   private mapFrontendTypeToBackend(frontendType: string): string {
     const typeMap: { [key: string]: string } = {
       'text': 'general',
